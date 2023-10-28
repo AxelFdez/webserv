@@ -1,5 +1,5 @@
-#include "../includes/ServerConfig.hpp"
-#include "../includes/ServerSocket.hpp"
+#include "../includes/Config.hpp"
+#include "../includes/Server.hpp"
 
 int main (int argc, char **argv)
 {
@@ -13,26 +13,13 @@ int main (int argc, char **argv)
 		configFile = argv[1];
 	try
 	{
-		ServerConfig serverConfig(configFile);
-		ServerSocket serverSocket(serverConfig);
+		Server server(configFile);
 	}
 	catch(const std::exception& e)
-		std::cerr << e.what() << '\n';
-
-	/*
-	serverSocket.bind();
-	serverSocket.listening();
-
-	while (1)
 	{
-		connectionClientSocket = accept()
-		read (connectionClientSocket, buffer, length); lis le contenu de la requete
-		write (connectionClientSocket, response, lengthBuffer); envoi la réponse au client.
-		close (connectionClientSocket);
-
+		std::cerr << e.what() << '\n';
 	}
 
-	*/
 
 	return (0);
 }
@@ -45,5 +32,12 @@ int main (int argc, char **argv)
 
 -- parsing du fichier et recupération des variables pour la création du network ==> class ConfigFile(argv[1])
 -- creation du socket ==> class serverSocket()
+-- mis en place de la boucle d'ecoute => poll()
+-- parsing de la requete du navigateur
+-- creation de la reponse + envoi
+
+
+-- signal() pour exit le server
+
 
 */

@@ -6,13 +6,13 @@
 #    By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/26 11:05:14 by axfernan          #+#    #+#              #
-#    Updated: 2023/10/20 14:50:25 by axfernan         ###   ########.fr        #
+#    Updated: 2023/10/26 21:41:34 by axfernan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = webserv
 
-FLAGS = -Werror -Wextra -Wall -std=c++98
+FLAGS =  -std=c++98 -g -fsanitize=address #-Werror -Wextra -Wall
 
 SRC = $(MAIN_SRC) $(MAIN_HDR)
 
