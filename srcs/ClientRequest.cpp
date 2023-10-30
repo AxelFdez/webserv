@@ -108,31 +108,6 @@ void ClientRequest::readRequest()
 	//return std::string(request);
 }
 
-// void ClientRequest::saveRequest(std::vector<ClientData> client)
-// {
-// 	std::istringstream stream(request);
-// 	std::string value;
-// 	getline(stream, value);
-// 	//_info.insert(std::pair<std::string, std::string>("request", value));
-// 	_client[pfd] = insert(std::pair<std::string, std::string>("request", value));
-// 	while (getline(stream, value, ':'))
-// 	{
-// 		std::string key = value;
-// 		getline(stream, value);
-// 		value.erase(value.begin());
-// 		if (std::all_of(value.begin(), value.end(), ::isspace))
-// 			continue;
-// 		// _info.insert(std::pair<std::string, std::string>(key, value));
-// 		_client[pfd] = insert(std::pair<std::string, std::string>(key, value));
-// 	}
-// 	// std::map<std::string, std::string>::iterator it;
-// 	// std::cout << "--------- REQUEST ---------" << std::endl;
-// 	// for (it = _client[pfd]->second.begin(); it != _client[pfd]->second.end(); it++)
-// 	// {
-// 	// 	std::cout << it->first << " : " << it->second << std::endl;
-// 	// }
-// 	// std::cout << "------- END REQUEST -------" << std::endl;
-// }
 
 void ClientRequest::sendResponse()
 {
