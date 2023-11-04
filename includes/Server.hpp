@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -34,3 +35,6 @@ class Server
 
 
 };
+
+std::string getHtmlPage(const std::string &path);
+std::string generateErrorPage(int errorCode);

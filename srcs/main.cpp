@@ -13,6 +13,8 @@ int main (int argc, char **argv)
 		configFile = argv[1];
 	try
 	{
+		// std::cout << getHtmlPage("/Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/index.html");
+		// exit(1);
 		Server server(configFile);
 	}
 	catch(const std::exception& e)
