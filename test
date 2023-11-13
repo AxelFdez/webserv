@@ -1,8 +1,5 @@
-#!/usr/bin/php-cgi
-<?php
-  echo "Content-type: text/html\r\n\r\n";
-  echo "<html><head><title>Test CGI</title></head><body>";
-  echo "<h1>Bonjour, Nanou. Ceci est un script CGI en PHP.</h1>";
-  echo "</body></html>";
-?>
+POST /test.php HTTP/1.1
+Host: localhost
+Content-Type: application/x-www-form-urlencoded
 
+champ1=valeur1&champ2=valeur2

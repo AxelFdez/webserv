@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdio>
 
 #include "../includes/Config.hpp"
 #include "../includes/ClientRequest.hpp"
@@ -35,6 +36,3 @@ class Server
 
 
 };
-
-std::string getHtmlPage(const std::string &path);
-std::string generateErrorPage(int errorCode);

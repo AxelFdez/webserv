@@ -14,16 +14,18 @@ class MakeResponse
 		~MakeResponse();
 		std::string	getResponse();
 		void		handleRequest();
-		void		mappedRequestFunc();
+		void		mappedRequest();
 		void		displayMappedRequest();
-		void		driveRequest();
-		bool		requestError(std::string, std::string,
-		std::string);
-		int			extensionPath(const std::string &);
+		void		generateResponse();
 
 	private :
-		std::string	_body;
-		std::string	_header;
 		std::string _request;
+		//std::string	_requestHeader;
+		std::string _requestBody;
+		std::string _responseHeader;
+		std::string	_responseBody;
+		std::string	_lineEnding;
 		std::map<std::string, std::string> _mappedRequest;
 };
+
+std::string	detectLineEnding(const std::string&);

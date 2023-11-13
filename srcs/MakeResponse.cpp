@@ -2,6 +2,7 @@
 
 MakeResponse::MakeResponse(std::string request) : _request(request)
 {
+	_lineEnding = detectLineEnding(request);
 	handleRequest();
 	//std::cout << "NEW REQUEST\n" << std::endl;
 }
@@ -10,86 +11,64 @@ MakeResponse::~MakeResponse() {}
 
 void	MakeResponse::handleRequest()
 {
-	mappedRequestFunc();
-	driveRequest();
+	mappedRequest();
+	generateResponse();
 	//displayMappedRequest();
 }
 
-void	MakeResponse::mappedRequestFunc()
+void	MakeResponse::mappedRequest()
 {
 	std::istringstream stream(_request);
-	std::string value;
+	std::string line;
+	std::string key, value;
 	getline(stream, value);
-	_mappedRequest.insert(std::pair<std::string, std::string>("request", value));
-	while (getline(stream, value, ':'))
+	_mappedRequest.insert(std::pair<std::string, std::string>("RequestLine", value));
+	while (getline(stream, line) && line != _lineEnding.substr(0, 1) && line != "")
 	{
-		std::string key = value;
-		getline(stream, value);
-		value.erase(value.begin());
-		if (std::all_of(value.begin(), value.end(), ::isspace))
-			continue;
-		_mappedRequest.insert(std::pair<std::string, std::string>(key, value));
+		std::istringstream lineStream(line);
+		if(getline(lineStream, key, ':'))
+			if (getline(lineStream, value))
+			{
+				_mappedRequest[key] = value.substr(value.find_first_not_of(" "));
+			}
 	}
-
+	line.assign((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+	if (line.empty())
+		_mappedRequest["Body"];
+	else
+		_mappedRequest.insert(std::pair<std::string, std::string>("Body", line));
 }
 
-void		MakeResponse::displayMappedRequest()
+void	MakeResponse::generateResponse()
 {
-	std::map<std::string, std::string>::iterator it;
-	std::cout << "--------- REQUEST ---------" << std::endl;
-	for (it = _mappedRequest.begin(); it != _mappedRequest.end(); it++)
-	{
-		std::cout << it->first << " : " << it->second << std::endl;
-	}
-	std::cout << "------- END REQUEST -------" << std::endl;
-}
-
-void	MakeResponse::driveRequest()
-{
-	std::istringstream split(_mappedRequest["request"]);
-	std::string token;
-	getline(split, token, ' ');
-	std::string method = token;
-	getline(split, token, ' ');
-	std::string pathData = token;
-	getline(split, token);
-	std::string protocol = token;
-	// std::string path = pathData.substr(0, pathData.find('?', 0));
-	// std::cout << "path : " << path << std::endl;
-	if (requestError(method, pathData, protocol) == false && _mappedRequest.find("host") == _mappedRequest.end())
-	{
-		_body = generateErrorPage(400);
-		GenerateHeader header(pathData, 400);
-		_header = header.getHeader();
-		return;
-	}
-	GenerateBody body(method, pathData);
-	_body = body.getBody();
-	GenerateHeader header(body.getPath(), body.getCode());
-	_header = header.getHeader();
+	GenerateBody body(_mappedRequest, _lineEnding);
+	_responseBody = body.getBody();
+	GenerateHeader header(body.getPath(), body.getCode(), body.getCgiHeader());
+	_responseHeader = header.getHeader();
 }
 
 std::string	MakeResponse::getResponse()
 {
-	return (_header + "\n" + _body);
+	return (_responseHeader + _lineEnding + _lineEnding + _responseBody);
 }
 
-// int MakeResponse::extensionPath(const std::string & path)
-// {
-// 	std::istringstream file(*(path.begin() + 1));
-// 	std::string token;
-// 	getline(file, token, '/');
-// 	return 0;
-// }
 
-bool		MakeResponse::requestError(std::string method, std::string path,
-		std::string protocol)
+void		MakeResponse::displayMappedRequest()
 {
-	if (method != "GET" || method != "POST" || method != "DELETE")
-		return false;
-	if (protocol != "HTTP/1.1")
-		return false;
-	if (*path.begin() != '/')
-		return false;
-	return true;
+	std::map<std::string, std::string>::iterator it;
+	std::cout << "--------- MAPPED REQUEST ---------" << std::endl;
+	for (it = _mappedRequest.begin(); it != _mappedRequest.end(); it++)
+	{
+		std::cout << it->first << " : " << it->second << std::endl;
+	}
+	std::cout << "------- END MAPPED REQUEST -------" << std::endl;
+}
+
+std::string	detectLineEnding(const std::string& request)
+{
+	if (request.find("\r\n") != std::string::npos)
+		return "\r\n";
+	else if (request.find("\n") != std::string::npos)
+		return "\n";
+	return "";
 }

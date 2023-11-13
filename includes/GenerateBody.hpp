@@ -1,28 +1,39 @@
 #pragma once
 
 #include "Server.hpp"
+#include "ErrorCode.hpp"
 
 class GenerateBody
 {
 	public :
-		GenerateBody(std::string method, std::string pathData);
+		GenerateBody(std::map<std::string, std::string> request, std::string body);
 		~GenerateBody();
 
-		void				handleMethod();
-		void				GetMethod();
-		//void				PostMethod();
-		//void				DeleteMethod();
+		void				handleRequest();
+		bool				requestErrors();
+		std::string			isolateExtension();
 		const std::string	&getBody() const;
 		const int			&getCode() const;
 		const std::string	&getPath() const;
-		// const struct stat	&getFileStat() const;
+		const std::string	&getCgiHeader() const;
+		void				executeCGI();
+		std::string			getDirectory();
+		bool				fillResponseFrom(int stdoutPipe);
 
 	private :
-		int 		_code;
+		std::map<std::string, std::string> _request;
+		int 		_errorCode;
 		std::string _method;
 		std::string _uri;
+		std::string _protocol;
 		std::string _path;
-		std::string _response;
+		std::string _requestBody;
+		std::string _responseBody;
+		std::string _cgiHeader;
+		std::string	_lineEnding;
 };
 
+std::string getRessource(const std::string &path);
+std::string generateErrorPage(int errorCode);
 std::string getContentType(const std::string& filePath);
+std::vector<std::string> envCGI(std::string uri, std::string method, std::map<std::string, std::string>);

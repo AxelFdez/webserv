@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Plein Écran</title>
+	<style>
+		body, html {
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.fullscreen-image {
+    background-image: url('img.png'); /* Remplacez par le chemin de votre image */
+    background-size: cover;   /* Redimensionne l'image pour couvrir entièrement le conteneur */
+    background-position: center; /* Centre l'image dans le conteneur */
+    background-repeat: no-repeat; /* Empêche la répétition de l'image */
+    height: 100%;
+    width: 100%;
+}
+	</style>
+</head>
+<body>
+    <div class="fullscreen-image"></div>
+</body>
+</html>

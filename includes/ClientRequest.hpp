@@ -28,6 +28,8 @@ class ClientRequest
 		void		pollFunc();
 		void		listenning();
 
+		void		displayRequest(const std::string &, int) const;
+
 	private :
 
 		std::vector<struct pollfd>	_sockets;

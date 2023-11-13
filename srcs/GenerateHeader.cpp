@@ -1,6 +1,6 @@
 #include "../includes/GenerateHeader.hpp"
 
-GenerateHeader::GenerateHeader(std::string path, int code) : _path(path), _code(code)
+GenerateHeader::GenerateHeader(std::string path, int code, std::string cgiHeader) : _path(path), _code(code), _cgiHeader(cgiHeader)
 {
 	if (_code >= 400)
 		errorHeaderFormat();
@@ -12,6 +12,7 @@ GenerateHeader::~GenerateHeader() {}
 
 void GenerateHeader::headerFormat()
 {
+	ErrorCode errorMessage;
 	struct stat	fileStat;
 	stat(_path.c_str(), &fileStat);
 	char lastModifDate[80];
@@ -20,26 +21,34 @@ void GenerateHeader::headerFormat()
 	char creationDate[80];
     strftime(creationDate, sizeof(creationDate), "%a, %d %b %Y %H:%M:%S GMT", localtime(&now));
 
-	_header = "HTTP/1.1 " + std::to_string(_code) + "\n" \
+	_header = "HTTP/1.1 " + std::to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
 	+ "Server: webserv/chmassa-axfernan\n" \
 	+ "Date: " + creationDate + "\n" \
-	+ "Content-Type: " + getContentType(_path) + "\n" \
-	+ "Content-Length: " + std::to_string(fileStat.st_size) +"\n" \
 	+ "Last-Modified: " + lastModifDate + "\n";
+	if (_cgiHeader.empty())
+	{
+		_header.append("Content-Type: " + getContentType(_path) + "\n");
+		_header.append("Content-Length: " + std::to_string(fileStat.st_size));
+	}
+	else
+	{
+		_header.append(_cgiHeader);
+	}
 }
 
 void GenerateHeader::errorHeaderFormat()
 {
+	ErrorCode errorMessage;
 	std::time_t now = std::time(NULL);
 	char creationDate[80];
     strftime(creationDate, sizeof(creationDate), "%a, %d %b %Y %H:%M:%S GMT", localtime(&now));
 
-	_header = "HTTP/1.1 " + std::to_string(_code) + "\n" \
+	_header = "HTTP/1.1 " + std::to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
 	+ "Server: webserv/chmassa-axfernan\n" \
 	+ "Date: " + creationDate + "\n" \
 	+ "Content-Type: text/html\n"\
 	+ "Content-Length: " + std::to_string(generateErrorPage(_code).size()) + "\n" \
-	+ "Connection: close\n";
+	+ "Connection: close";
 }
 
 
@@ -48,7 +57,8 @@ const std::string &GenerateHeader::getHeader()
 	return _header;
 }
 
-std::string getContentType(const std::string& filePath) {
+std::string getContentType(const std::string& filePath)
+{
     std::map<std::string, std::string> contentTypes;
     contentTypes[".html"] = "text/html";
     contentTypes[".txt"] = "text/plain";
@@ -61,8 +71,8 @@ std::string getContentType(const std::string& filePath) {
     contentTypes[".jpeg"] = "image/jpeg";
     contentTypes[".gif"] = "image/gif";
     contentTypes[".php"] = "text/html";
+	contentTypes[".py"] = "text/html;";
 
-    // Trouver la dernière occurrence du point pour obtenir l'extension
     std::size_t lastIndex = filePath.find_last_of(".");
     if (lastIndex != std::string::npos) {
         std::string extension = filePath.substr(lastIndex);

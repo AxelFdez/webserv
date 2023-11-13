@@ -112,13 +112,15 @@ void ClientRequest::sendResponse()
 	{
 		if ((_sockets[i].revents & POLLOUT) && !(_sockets[i].revents & POLLIN) && !_client[_sockets[i].fd].empty())
 		{
+			displayRequest(_client[_sockets[i].fd], 0);
 			MakeResponse response(_client[_sockets[i].fd]);
+			displayRequest(response.getResponse(), 1);
 			fcntl(_sockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-			//std::cout << response.getResponse() << std::endl << std::endl;
 			ssize_t bytesSent = 0;
 			while (bytesSent < response.getResponse().size())
 			{
-				ssize_t bytes = send(_sockets[i].fd, response.getResponse().c_str(), response.getResponse().size(), 0);
+				std::string partialResponse= response.getResponse().substr(bytesSent);
+				ssize_t bytes = send(_sockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
 				if (bytes < 0)
 				{
 					perror("send error");
@@ -137,4 +139,17 @@ void ClientRequest::sendResponse()
 			i--;
 		}
 	}
+}
+
+void ClientRequest::displayRequest(const std::string  &request, int modifier) const
+{
+	if (!modifier)
+		std::cout << "\033[0;41m-----REQUEST------" << std::endl;
+	else
+		std::cout << "\033[0;42m-----RESPONSE-----" << std::endl;
+	std::cout << request << std::endl;
+	if (!modifier)
+		std::cout <<  "\033[0;41m-----REQUEST------\033[0m" << std::endl;
+	else
+		std::cout << "\033[0;42m-----RESPONSE-----\033[0m" << std::endl;
 }
