@@ -55,7 +55,7 @@ void GenerateBody::handleRequest()
 		_responseBody = "";
 		return;
 	}
-	if (extension == ".php")
+	if (extension == ".php" || extension == ".py")
 	{
 		if (_method != "GET" && _method != "POST")
 		{
@@ -63,8 +63,10 @@ void GenerateBody::handleRequest()
 			_responseBody = generateErrorPage(405);
 			return;
 		}
-		_errorCode = 200;
-		executeCGI();
+		CGI cgi(_path, _uri, _method, _request, _lineEnding, extension);
+		_responseBody = cgi.getResponseBody();
+		_errorCode = cgi.getErrorCode();
+		_cgiHeader = cgi.getCgiHeader();
 	}
 	else
 	{
@@ -101,114 +103,6 @@ std::string GenerateBody::isolateExtension()
 		return extension;
 	}
 	return "";
-}
-
-
-void	GenerateBody::executeCGI()
-{
-	int stdinPipe[2];
-	int stdoutPipe[2];
-	pipe(stdinPipe);
-	pipe(stdoutPipe);
-	pid_t child = fork();
-	if (child < 0)
-	{
-		_errorCode = 500;
-		_responseBody = generateErrorPage(500);
-		perror("fork error");
-		return;
-	}
-	else if (child == 0)
-	{
-		dup2(stdinPipe[0], STDIN_FILENO);
-		close(stdinPipe[0]);
-		close(stdinPipe[1]);
-		dup2(stdoutPipe[1], STDOUT_FILENO);
-		close(stdoutPipe[1]);
-		close(stdoutPipe[0]);
-		chdir(getDirectory().c_str());
-		char *cmd[2];
-		cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
-		cmd[1] = NULL;
-		std::vector<char*> env;
-		std::vector<std::string> tmp = envCGI(_uri, _method, _request);
-		for (size_t i = 0; i < tmp.size(); i++)
-			env.push_back(const_cast<char*>(tmp[i].c_str()));
-		env.push_back(NULL);
-		execve(cmd[0], cmd, env.data());
-		perror("execve");
-	}
-	write(stdinPipe[1], _requestBody.c_str(), _requestBody.length());
-	close(stdinPipe[1]);
-	close(stdinPipe[0]);
-	close(stdoutPipe[1]);
-	waitpid(child, NULL, 0);
-	if (!fillResponseFrom(stdoutPipe[0]))
-	{
-		_errorCode = 500;
-		_responseBody = generateErrorPage(500);
-		return;
-	}
-	close(stdoutPipe[0]);
-	size_t pos = _responseBody.find(_lineEnding + _lineEnding);
-	if (pos != std::string::npos)
-	{
-		_cgiHeader.assign(_responseBody.begin(), _responseBody.begin() + pos);
-		_responseBody = _responseBody.assign(_responseBody.begin() + pos + 4, _responseBody.end());
-	}
-	size_t status = _cgiHeader.find("Status: ");
-	if (status != std::string::npos)
-	{
-		_errorCode =  atoi(_cgiHeader.substr(status + 8, 3).c_str());
-	}
-	// std::cout << "headr = \n" << _cgiHeader << std::endl;
-	// std::cout << "body = \n" << _body << std::endl;
-}
-
-bool	GenerateBody::fillResponseFrom(int stdoutPipe)
-{
-	const size_t bufferSize = 256;
-   	std::vector<char> buffer(bufferSize);
-	ssize_t bytesRead;
-    while ((bytesRead = read(stdoutPipe, buffer.data(), bufferSize)) > 0)
-        _responseBody.append(buffer.begin(), buffer.begin() + bytesRead);
-    if (bytesRead < 0)
-	{
-        perror("Erreur de lecture du pipe");
-		return (false);
-	}
-	return (true);
-}
-
-std::string	GenerateBody::getDirectory()
-{
-	size_t end = _path.find_last_of("/");
-	if (end == std::string::npos || end == _path.size())
-		return (_path);
-	else
-		return(_path.substr(0, end));
-}
-
-std::vector<std::string> envCGI(std::string uri, std::string method, std::map<std::string, std::string> request)
-{
-	std::vector<std::string> env;
-		env.push_back("REDIRECT_STATUS=CGI");
-		env.push_back("REQUEST_METHOD=" + method);
-		if (method == "POST")
-		{
-        	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");
-        	env.push_back("CONTENT_LENGTH=" + std::to_string(request["Body"].length()));
-    	}
-		env.push_back(("SCRIPT_FILENAME=") + uri.substr(1, (uri.find('?', 0) - 1)));
-		if (uri.find('?', 0) != std::string::npos && method == "GET")
-		{
-			env.push_back(("QUERY_STRING=") + uri.substr(uri.find('?', 0) + 1, uri.size() - uri.find('?', 0)));
-		}
-		if (!request["Cookie"].empty())
-		{
-			env.push_back(("HTTP_COOKIE=") + request["Cookie"]);
-		}
-	return env;
 }
 
 const std::string &GenerateBody::getBody() const

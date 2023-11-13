@@ -2,6 +2,7 @@
 
 #include "Server.hpp"
 #include "ErrorCode.hpp"
+#include "CGI.hpp"
 
 class GenerateBody
 {
@@ -16,9 +17,6 @@ class GenerateBody
 		const int			&getCode() const;
 		const std::string	&getPath() const;
 		const std::string	&getCgiHeader() const;
-		void				executeCGI();
-		std::string			getDirectory();
-		bool				fillResponseFrom(int stdoutPipe);
 
 	private :
 		std::map<std::string, std::string> _request;
@@ -35,5 +33,4 @@ class GenerateBody
 
 std::string getRessource(const std::string &path);
 std::string generateErrorPage(int errorCode);
-std::string getContentType(const std::string& filePath);
-std::vector<std::string> envCGI(std::string uri, std::string method, std::map<std::string, std::string>);
+//std::vector<std::string> envCGI(std::string uri, std::string method, std::map<std::string, std::string>);

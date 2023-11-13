@@ -20,3 +20,5 @@ class GenerateHeader
 		int			_code;
 
 };
+
+std::string getContentType(const std::string& filePath);
