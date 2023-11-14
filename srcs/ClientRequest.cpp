@@ -1,18 +1,31 @@
 #include "../includes/ClientRequest.hpp"
 
-ClientRequest::ClientRequest(int serverSocket)
+ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets)
 {
 	pollfd pfd;
-	pfd.fd = serverSocket;
-	pfd.events = POLLIN;
-	_sockets.push_back(pfd);
+	for (size_t i = 0; i < serverSockets.size(); i++)
+	{
+		int nbSockets = 0;
+		for (size_t j = 0; j < serverSockets[i].size(); j++)
+		{
+			pfd.fd = serverSockets[i][j];
+			pfd.events = POLLIN;
+			_pollSockets.push_back(pfd);
+			nbSockets = j;
+		}
+		_socketsByServer.push_back(nbSockets);
+		_totalServerSockets += nbSockets;
+	}
 }
 
 ClientRequest::~ClientRequest()
 {
-	close(_sockets[0].fd);
-	_sockets.clear();
-	_client.clear();
+	for (size_t i = 0; i < _pollSockets.size(); i++)
+	{
+		close(_pollSockets[i].fd);
+	}
+	_pollSockets.clear();
+	_clients.clear();
 }
 
 void ClientRequest::manageRequest()
@@ -30,7 +43,7 @@ void ClientRequest::manageRequest()
 
 void ClientRequest::pollFunc()
 {
-	int ret = poll(_sockets.data(), _sockets.size(), 5000);
+	int ret = poll(_pollSockets.data(), _pollSockets.size(), 5000);
 	if (ret < 0)
 	{
 		perror("poll");
@@ -38,57 +51,71 @@ void ClientRequest::pollFunc()
 	}
 	else if (ret == 0)
 	{
-		for (size_t i = 1; i < _sockets.size(); i++)
+		for (size_t i = 1; i < _pollSockets.size(); i++)
 		{
-			close(_sockets[i].fd);
+			close(_pollSockets[i].fd);
 		}
-		_sockets.erase(_sockets.begin() + 1, _sockets.end());
-		_client.clear();
+		_pollSockets.erase(_pollSockets.begin() + 1, _pollSockets.end());
+		_clients.clear();
 	}
 }
 
 void ClientRequest::listenning()
 {
-	if (listen(_sockets[0].fd, 50) < 0)
+	for (size_t i = 0; i < _totalServerSockets; i++)
 	{
-		std::cout << "error : listen failed" << std::endl;
-		throw std::exception();
+		if (listen(_pollSockets[i].fd, 50) < 0)
+		{
+			std::cout << "error : listen failed" << std::endl;
+			throw std::exception();
+		}
 	}
 }
-
 
 void ClientRequest::acceptNewClient()
 {
 	struct	sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
 	int newClient;
-	if (_sockets[0].revents & POLLIN)
+	int ref = 0;
+	int server = 0;
+	for (size_t i = 0; i < _totalServerSockets; i++)
 	{
-		newClient = accept(_sockets[0].fd, (struct sockaddr *)&clientAddr, &clientLen);
+		ref++;
+		if (ref == _socketsByServer[server])
+		{
+			ref = 0;
+			server++;
+		}
+		if (_pollSockets[i].revents & POLLIN)
+		{
+			newClient = accept(_pollSockets[i].fd, (struct sockaddr *)&clientAddr, &clientLen);
+		}
+		else
+			return;
+		if (newClient < 0)
+		{
+			perror("Could not accept this client");
+			return;
+		}
+		pollfd pfd;
+		pfd.fd = newClient;
+		pfd.events = POLLIN | POLLOUT;
+		_pollSockets.push_back(pfd);
+		_clients[pfd.fd];
+		_clients[pfd.fd].setBelongOgServer(server);
 	}
-	else
-		return;
-	if (newClient < 0)
-	{
-		perror("Could not accept this client");
-		return;
-	}
-	pollfd pfd;
-	pfd.fd = newClient;
-	pfd.events = POLLIN | POLLOUT;
-	_sockets.push_back(pfd);
-	_client[pfd.fd];
 }
 
 void ClientRequest::readRequest()
 {
 
-	for (size_t i = 1; i < _sockets.size(); i++)
+	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if (_sockets[i].revents & POLLIN)
+		if (_pollSockets[i].revents & POLLIN)
 		{
 			char request[1024];
-			ssize_t bytes = recv(_sockets[i].fd, request, sizeof(request), 0);
+			ssize_t bytes = recv(_pollSockets[i].fd, request, sizeof(request), 0);
 			if (bytes < 0)
 				perror("Error data reception");
 			else if (bytes == 0)
@@ -96,31 +123,37 @@ void ClientRequest::readRequest()
 			else
 			{
 				request[bytes] = '\0';
-				_client[_sockets[i].fd].append(request);
+				if (_clients[_pollSockets[i].fd].getRequest().empty())
+					_clients[_pollSockets[i].fd].setRequest(request);
+				else
+				{
+					std::string tmp = _clients[_pollSockets[i].fd].getRequest();
+					_clients[_pollSockets[i].fd].setRequest(tmp + request);
+				}
 				continue;
 			}
-			close(_sockets[i].fd);
-			_client.count(_sockets[i].fd);
-			_sockets.erase(_sockets.begin() + i);
+			close(_pollSockets[i].fd);
+			_clients.count(_pollSockets[i].fd);
+			_pollSockets.erase(_pollSockets.begin() + i);
 		}
 	}
 }
 
 void ClientRequest::sendResponse()
 {
-	for (size_t i = 1; i < _sockets.size(); i++)
+	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if ((_sockets[i].revents & POLLOUT) && !(_sockets[i].revents & POLLIN) && !_client[_sockets[i].fd].empty())
+		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
-			displayRequest(_client[_sockets[i].fd], 0);
-			MakeResponse response(_client[_sockets[i].fd]);
+			displayRequest(_clients[_pollSockets[i].fd].getRequest(), 0);
+			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer());
 			displayRequest(response.getResponse(), 1);
-			fcntl(_sockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			ssize_t bytesSent = 0;
 			while (bytesSent < response.getResponse().size())
 			{
 				std::string partialResponse= response.getResponse().substr(bytesSent);
-				ssize_t bytes = send(_sockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
+				ssize_t bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
 				if (bytes < 0)
 				{
 					perror("send error");
@@ -133,9 +166,9 @@ void ClientRequest::sendResponse()
 				}
 				bytesSent += bytes;
 			}
-			close(_sockets[i].fd);
-			_client.erase(_sockets[i].fd);
-			_sockets.erase(_sockets.begin() + i);
+			close(_pollSockets[i].fd);
+			_clients.erase(_pollSockets[i].fd);
+			_pollSockets.erase(_pollSockets.begin() + i);
 			i--;
 		}
 	}

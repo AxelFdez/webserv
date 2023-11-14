@@ -22,7 +22,7 @@ void Server::createSocket()
 		throw std::exception();
 	}
 	std::cout << "Socket created." << std::endl;
-	 int optval = 1;
+	int optval = 1;
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
         perror("Erreur lors de la configuration de setsockopt");
         close(_socket);
@@ -45,7 +45,7 @@ void Server::linkAddPort()
 {
     std::cout << "addr = " << _config.getServerValues(0, "host").c_str() << std::endl;
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = inet_addr(_config.getServerValues(0, "host").c_str()); //_config.address
+	_address.sin_addr.s_addr = htonl(INADDR_ANY); //_config.address
 	_address.sin_port = htons(8080); //_config.port
 
 	std::cout << "link to address and port(s)..." << std::endl;

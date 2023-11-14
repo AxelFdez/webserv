@@ -15,10 +15,37 @@
 #include "Server.hpp"
 #include "MakeResponse.hpp"
 
+class ClientInfo
+{
+	public :
+		ClientInfo() {}
+		~ClientInfo() {}
+		void		setRequest(std::string request)
+		{
+			_request = request;
+		}
+		void		setBelongOgServer(int ref)
+		{
+			_belongOfServer = ref;
+		}
+		std::string	getRequest()
+		{
+			return _request;
+		}
+		int			getBelongOfServer()
+		{
+			return _belongOfServer;
+		}
+
+	private :
+		std::string _request;
+		int			_belongOfServer;
+};
+
 class ClientRequest
 {
 	public :
-		ClientRequest(int serverSocket);
+		ClientRequest(std::vector<std::vector<int> > serverSockets);
 		~ClientRequest();
 
 		void		manageRequest();
@@ -31,7 +58,10 @@ class ClientRequest
 		void		displayRequest(const std::string &, int) const;
 
 	private :
-
-		std::vector<struct pollfd>	_sockets;
-		std::map<int, std::string>	_client;
+		std::vector<int>			_socketsByServer;
+		int							_totalServerSockets;
+		std::vector<struct pollfd>	_pollSockets;
+		std::map<int, ClientInfo>	_clients;
+		//std::map<int, std::string>	_client;
 };
+
