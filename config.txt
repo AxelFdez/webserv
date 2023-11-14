@@ -6,7 +6,8 @@
 
 server    [
 
-    listen   97;
+    listen   8080;
+    listen   8081;
     host    127.0.0.1;
     server_name chmassa;
     body_size_max 90;
@@ -55,11 +56,10 @@ server    [
 server [
 
 
-    listen                   80;
-    listen                   81;
-    listen                   82;
-    listen                   90;
-    listen                   83;
+    listen                   8082;
+    listen                   8090;
+    listen                   8095;
+    listen                   8083;
     host              127.0.0.1;
     server_name         chmassa;
     body_size_max            80;

@@ -1,6 +1,6 @@
 #include "../includes/MakeResponse.hpp"
 
-MakeResponse::MakeResponse(std::string request) : _request(request)
+MakeResponse::MakeResponse(std::string request, int serverNo) : _request(request), _serverNo(serverNo)
 {
 	_lineEnding = detectLineEnding(request);
 	handleRequest();
@@ -51,7 +51,6 @@ std::string	MakeResponse::getResponse()
 {
 	return (_responseHeader + _lineEnding + _lineEnding + _responseBody);
 }
-
 
 void		MakeResponse::displayMappedRequest()
 {

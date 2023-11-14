@@ -10,7 +10,7 @@ class GenerateHeader;
 class MakeResponse
 {
 	public :
-		MakeResponse(std::string request);
+		MakeResponse(std::string request, int serverNo);
 		~MakeResponse();
 		std::string	getResponse();
 		void		handleRequest();
@@ -20,12 +20,12 @@ class MakeResponse
 
 	private :
 		std::string _request;
-		//std::string	_requestHeader;
+		int			_serverNo;
+		std::map<std::string, std::string> _mappedRequest;
 		std::string _requestBody;
 		std::string _responseHeader;
 		std::string	_responseBody;
 		std::string	_lineEnding;
-		std::map<std::string, std::string> _mappedRequest;
 };
 
 std::string	detectLineEnding(const std::string&);

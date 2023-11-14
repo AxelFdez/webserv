@@ -2,19 +2,20 @@
 
 ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets)
 {
-	pollfd pfd;
+	_totalServerSockets = 0;
 	for (size_t i = 0; i < serverSockets.size(); i++)
 	{
 		int nbSockets = 0;
 		for (size_t j = 0; j < serverSockets[i].size(); j++)
 		{
+			pollfd pfd;
 			pfd.fd = serverSockets[i][j];
 			pfd.events = POLLIN;
 			_pollSockets.push_back(pfd);
 			nbSockets = j;
+			_totalServerSockets++;
 		}
 		_socketsByServer.push_back(nbSockets);
-		_totalServerSockets += nbSockets;
 	}
 }
 
@@ -51,11 +52,11 @@ void ClientRequest::pollFunc()
 	}
 	else if (ret == 0)
 	{
-		for (size_t i = 1; i < _pollSockets.size(); i++)
+		for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 		{
 			close(_pollSockets[i].fd);
 		}
-		_pollSockets.erase(_pollSockets.begin() + 1, _pollSockets.end());
+		_pollSockets.erase(_pollSockets.begin() + _totalServerSockets, _pollSockets.end());
 		_clients.clear();
 	}
 }
@@ -77,22 +78,22 @@ void ClientRequest::acceptNewClient()
 	struct	sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
 	int newClient;
-	int ref = 0;
+	int ref = -1;
 	int server = 0;
 	for (size_t i = 0; i < _totalServerSockets; i++)
 	{
-		ref++;
 		if (ref == _socketsByServer[server])
 		{
-			ref = 0;
+			ref = -1;
 			server++;
 		}
+		ref++;
 		if (_pollSockets[i].revents & POLLIN)
 		{
 			newClient = accept(_pollSockets[i].fd, (struct sockaddr *)&clientAddr, &clientLen);
 		}
 		else
-			return;
+			continue;
 		if (newClient < 0)
 		{
 			perror("Could not accept this client");
@@ -147,6 +148,7 @@ void ClientRequest::sendResponse()
 		{
 			displayRequest(_clients[_pollSockets[i].fd].getRequest(), 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer());
+			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			ssize_t bytesSent = 0;
