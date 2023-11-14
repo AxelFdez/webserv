@@ -6,29 +6,25 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/14 10:54:43 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/14 15:37:52 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HandleConfigFile.hpp"
-
-// HandleConfigFile::HandleConfigFile() {}
-
-
 
 HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
 
     get_ports_bodySize();
     getLocations();
 
-
-
     // print_config();
     // print_ports_bodySize();
     // print_locations();
-
-
 }
+
+HandleConfigFile::~HandleConfigFile() {}
+
+// ******** TOOLS **************************************************************************
 
 void HandleConfigFile::getLocations() {
 
@@ -51,11 +47,6 @@ void HandleConfigFile::getLocations() {
         }
     }
 }
-
-
-
-HandleConfigFile::~HandleConfigFile() {}
-
 
 void HandleConfigFile::get_ports_bodySize() {
     /* _ports is a vector of vector<int>, each vector contains the ports of the server...
@@ -96,50 +87,6 @@ void HandleConfigFile::get_ports_bodySize() {
     }
 }
 
-std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const& toFind) {
-
-    std::vector<std::string>::iterator it = config[serverNb].begin();
-    for ( ; it != config[serverNb].end(); it++ ) {
-
-        if ( (*it).find("location", 0, 8 ) == 0 ) {
-            while ( *it != "}" ) {
-                it++;
-            }
-        }
-        if ( (*it).find(toFind, 0) == 0 ) {
-            return getValue(*it);
-        }
-    }
-    return "";
-}
-std::vector<std::string> HandleConfigFile::getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const{
-
-    std::vector<std::string> result;
-
-    if ( serverNb < _locations.size() ) {
-
-        for ( int i = 0; i < _locations[serverNb].size(); i++ ) {
-
-            std::map<std::string, std::vector<std::string> >::const_iterator it = _locations[serverNb][i].find("location");
-            if ( it != _locations[serverNb][i].end() ) {
-
-                if ( std::find( it->second.begin(), it->second.end(), request ) != it->second.end() ) {
-
-                    it = _locations[serverNb][i].find(toFind);
-                    if ( it != _locations[serverNb][i].end() ) {
-                        
-                        result = it->second;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    return result;
-}
-
-// ******** TOOLS **************************************************************************
-
 std::string HandleConfigFile::getKey( std::string str ) {
 
     if ( !str.empty() ) {
@@ -148,7 +95,26 @@ std::string HandleConfigFile::getKey( std::string str ) {
     return str;
 }
 
+std::vector<std::string> HandleConfigFile::splitStringToVector( std::string str ) {
+
+    std::vector<std::string> vec;
+
+    for ( size_t i = 0; i < str.size(); i++ ) {
+
+        if ( isspace(str[i]) ) {
+            std::string tmp = str.substr(0, i);
+            vec.push_back( tmp );
+            while ( isspace(str[i]) ) { i++; }
+            str = str.substr(i);
+            i = 0;
+        }
+    }
+    vec.push_back( str );
+    return vec;
+}
+
 // ******** PRINT **************************************************************************
+
 void HandleConfigFile::print_config() const{
 
     // std::vector<std::vector<std::string> >::const_iterator it = config.begin();
@@ -197,20 +163,57 @@ void      HandleConfigFile::print_ports_bodySize() const{
     }
 }
 
-std::vector<std::string> HandleConfigFile::splitStringToVector( std::string str ) {
+// ******** GETTERS ************************************************************************
 
-    std::vector<std::string> vec;
+std::vector<std::vector<int> >   HandleConfigFile::getPorts() const{
+    
+    return _ports;
+}
 
-    for ( size_t i = 0; i < str.size(); i++ ) {
+std::vector<int>                 HandleConfigFile::getBodySizeMax() const{
 
-        if ( isspace(str[i]) ) {
-            std::string tmp = str.substr(0, i);
-            vec.push_back( tmp );
-            while ( isspace(str[i]) ) { i++; }
-            str = str.substr(i);
-            i = 0;
+    return _body_size_max;
+}
+
+std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const& toFind) {
+
+    std::vector<std::string>::iterator it = config[serverNb].begin();
+    for ( ; it != config[serverNb].end(); it++ ) {
+
+        if ( (*it).find("location", 0, 8 ) == 0 ) {
+            while ( *it != "}" ) {
+                it++;
+            }
+        }
+        if ( (*it).find(toFind, 0) == 0 ) {
+            return getValue(*it);
         }
     }
-    vec.push_back( str );
-    return vec;
+    return "";
+}
+
+std::vector<std::string> HandleConfigFile::getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const{
+
+    std::vector<std::string> result;
+
+    if ( serverNb < _locations.size() ) {
+
+        for ( int i = 0; i < _locations[serverNb].size(); i++ ) {
+
+            std::map<std::string, std::vector<std::string> >::const_iterator it = _locations[serverNb][i].find("location");
+            if ( it != _locations[serverNb][i].end() ) {
+
+                if ( std::find( it->second.begin(), it->second.end(), request ) != it->second.end() ) {
+
+                    it = _locations[serverNb][i].find(toFind);
+                    if ( it != _locations[serverNb][i].end() ) {
+                        
+                        result = it->second;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return result;
 }

@@ -32,8 +32,11 @@ class HandleConfigFile : public getConfigFile {
         HandleConfigFile( char* file );
         virtual ~HandleConfigFile();
 
-        std::string              getServerValues(size_t serverNb, std::string const& toFind); 
-        std::vector<std::string> getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const; 
+        // Getters
+        std::string                     getServerValues(size_t serverNb, std::string const& toFind); 
+        std::vector<std::string>        getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const;
+        std::vector<std::vector<int> >  getPorts() const;
+        std::vector<int>                getBodySizeMax() const;
 
 
     private:
@@ -42,21 +45,21 @@ class HandleConfigFile : public getConfigFile {
         HandleConfigFile & operator=( HandleConfigFile const& rhs );
 
         // Attributes
-        std::vector<std::vector<int> >                   _ports;
-        std::vector<int>                                 _body_size_max;
+        std::vector<std::vector<int> >                                               _ports;
+        std::vector<int>                                                             _body_size_max;
         std::vector<std::vector<std::map<std::string, std::vector<std::string> > > > _locations;
 
-        void        get_ports_bodySize();
-        void        getLocations();
 
 
         // Tools
+        void                        get_ports_bodySize();
+        void                        getLocations();
         std::string                 getKey( std::string str );
         std::vector<std::string>    splitStringToVector( std::string str );
-        // print
-        void      print_config() const;
-        void      print_ports_bodySize() const;
-        void      print_locations() const;
 
+        // print
+        void                        print_config() const;
+        void                        print_ports_bodySize() const;
+        void                        print_locations() const;
 
 };

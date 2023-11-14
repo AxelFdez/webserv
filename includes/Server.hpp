@@ -17,6 +17,28 @@ class Config;
 class ClientRequest;
 class HandleConfigFile;
 
+// class Server
+// {
+// 	public :
+// 		Server(const std::string &configFile);
+// 		~Server();
+
+// 		void launchServer();
+// 		void handleClients();
+// 		//void listenning();
+
+
+// 	private :
+// 		HandleConfigFile	 _config;
+// 		int					_socket;
+// 		struct sockaddr_in	_address;
+
+// 		void createSocket();
+// 		void linkAddPort();
+
+
+// };
+
 class Server
 {
 	public :
@@ -29,12 +51,14 @@ class Server
 
 
 	private :
-		HandleConfigFile	 _config;
-		int					_socket;
-		struct sockaddr_in	_address;
+		HandleConfigFile	 			_config;
+		std::vector<std::vector<int> >	_socket;
+		struct sockaddr_in				_address;
 
 		void createSocket();
 		void linkAddPort();
+		in_addr_t convIpToLong(const std::string& ipAddress);
 
 
 };
+
