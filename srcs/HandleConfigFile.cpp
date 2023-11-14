@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/14 10:29:58 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/14 10:54:43 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
 
     // print_config();
     // print_ports_bodySize();
-    print_locations();
+    // print_locations();
 
 
 }
@@ -127,7 +127,7 @@ std::vector<std::string> HandleConfigFile::getLocationValues(size_t serverNb, st
 
                     it = _locations[serverNb][i].find(toFind);
                     if ( it != _locations[serverNb][i].end() ) {
-                        std::cout << serverNb << " " << i << std::endl;
+                        
                         result = it->second;
                         break;
                     }
