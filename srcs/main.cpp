@@ -1,4 +1,4 @@
-#include "../includes/Config.hpp"
+#include "../includes/HandleConfigFile.hpp"
 #include "../includes/Server.hpp"
 
 int main (int argc, char **argv)

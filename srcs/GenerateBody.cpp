@@ -33,6 +33,7 @@ void GenerateBody::handleRequest()
 	}
 	else if (access(_path.c_str(), R_OK) == -1)
 	{
+		
 		_errorCode = 403;
 		_responseBody = generateErrorPage(_errorCode);
 		return;

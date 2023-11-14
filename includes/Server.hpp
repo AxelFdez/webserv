@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sys/types.h>
+#include <arpa/inet.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -9,11 +10,12 @@
 #include <fcntl.h>
 #include <cstdio>
 
-#include "../includes/Config.hpp"
+#include "../includes/HandleConfigFile.hpp"
 #include "../includes/ClientRequest.hpp"
 
 class Config;
 class ClientRequest;
+class HandleConfigFile;
 
 class Server
 {
@@ -27,7 +29,7 @@ class Server
 
 
 	private :
-		Config				 _config;
+		HandleConfigFile	 _config;
 		int					_socket;
 		struct sockaddr_in	_address;
 
