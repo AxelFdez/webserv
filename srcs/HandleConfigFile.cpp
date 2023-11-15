@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/15 15:59:46 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/15 17:29:38 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,11 @@ void HandleConfigFile::get_ports_bodySize() {
 }
 
 std::string HandleConfigFile::getKey( std::string str ) {
-
+    
     if ( !str.empty() ) {
-        str.resize(str.find(' ') );
+        if ( str.find(' ') != std::string::npos ) {
+            str.resize(str.find(' ') );
+        }
     }
     return str;
 }
@@ -170,9 +172,12 @@ std::vector<std::vector<int> >   HandleConfigFile::getPorts() const{
     return _ports;
 }
 
-std::vector<int>                 HandleConfigFile::getBodySizeMax() const{
+int  HandleConfigFile::getBodySizeMax(size_t serverNb) const{
 
-    return _body_size_max;
+    if ( serverNb < _body_size_max.size() ) {
+        return _body_size_max[serverNb];
+    }
+    return -1;
 }
 
 std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const& toFind) {
@@ -235,3 +240,18 @@ std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, 
     return emptyVector;
 }
 
+std::string const HandleConfigFile::getErrorPage( size_t serverNb, int errorCode ) {
+
+    std::string errorPath;
+    if ( serverNb < config.size() ) {
+        std::string errorNb = std::to_string( errorCode );
+        
+        for ( size_t i = 0; i < config[serverNb].size(); i++ ) {
+        
+            if ( getKey(config[serverNb][i]).find( errorNb ) != std::string::npos ) {
+                errorPath = getValue(config[serverNb][i]);
+            }
+        }
+    }
+    return errorPath;
+}
