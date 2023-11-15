@@ -6,7 +6,7 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/15 16:41:13 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/15 21:11:19 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,9 @@ void HandleConfigFile::get_ports_bodySize() {
 std::string HandleConfigFile::getKey( std::string str ) {
 
     if ( !str.empty() ) {
-        str.resize(str.find(' ') );
+        if ( str.find(' ') != std::string::npos ) {
+            str.resize(str.find(' ') );
+        }
     }
     return str;
 }
@@ -238,3 +240,18 @@ std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, 
     return emptyVector;
 }
 
+std::string const HandleConfigFile::getErrorPage( size_t serverNb, int errorCode ) {
+
+    std::string errorPath;
+    if ( serverNb < config.size() ) {
+        std::string errorNb = std::to_string( errorCode );
+
+        for ( size_t i = 0; i < config[serverNb].size(); i++ ) {
+
+            if ( getKey(config[serverNb][i]).find( errorNb ) != std::string::npos ) {
+                errorPath = getValue(config[serverNb][i]);
+            }
+        }
+    }
+    return errorPath;
+}

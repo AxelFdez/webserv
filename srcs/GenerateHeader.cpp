@@ -47,7 +47,6 @@ void GenerateHeader::errorHeaderFormat()
 	+ "Server: webserv/chmassa-axfernan\n" \
 	+ "Date: " + creationDate + "\n" \
 	+ "Content-Type: text/html\n"\
-	+ "Content-Length: " + std::to_string(generateErrorPage(_code).size()) + "\n" \
 	+ "Connection: close";
 }
 

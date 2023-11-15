@@ -23,7 +23,6 @@ void	CGI::executeCGI()
 	if (child < 0)
 	{
 		_errorCode = 500;
-		_responseBody = generateErrorPage(500);
 		perror("fork error");
 		return;
 	}
@@ -58,7 +57,6 @@ void	CGI::executeCGI()
 	if (!fillResponseFrom(stdoutPipe[0]))
 	{
 		_errorCode = 500;
-		_responseBody = generateErrorPage(500);
 		return;
 	}
 	close(stdoutPipe[0]);

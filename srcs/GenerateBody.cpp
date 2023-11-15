@@ -22,31 +22,54 @@ void GenerateBody::handleRequest()
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
-	for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
+	// std::cerr << "ressource_path = " << ressource_path << std::endl;
+	_path = ressource_path + _path;
+	if (_path[_path.size() - 1] == '/')
 	{
-		if (access((ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
+		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
-			_path = ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i];
-			break;
+			if (access((ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
+			{
+				_path = ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i];
+				break;
+			}
+			if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
+				_path = ressource_path + _path;
 		}
-		if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
-			_path = ressource_path + _path;
 	}
+
 	if (_path[_path.size() - 1] == '/')
 	{
 		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
 		{
 			_responseBody = generateListingDirectoryPage(_path, "", true);
 			_errorCode = 200;
-			_responseHeader = "Content_Type: text/html";
+			_responseHeader = "Content_Type: text/html\nContent-Length: " + std::to_string(_responseBody.size());
 			return;
 		}
 		else
 		{
 			_errorCode = 403;
-			_responseBody = generateErrorPage(_errorCode);
+			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return;
 		}
+	}
+	//std::cerr <<  "path = " << _path << std::endl;
+	if (access(_path.c_str(), F_OK) == -1)
+	{
+		_errorCode = 404;
+		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+		return;
+	}
+	else if (access(_path.c_str(), R_OK) == -1)
+	{
+
+		_errorCode = 403;
+		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+		return;
 	}
 	for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "methods").size(); i++)
 	{
@@ -57,22 +80,10 @@ void GenerateBody::handleRequest()
 		if (i == _config.getLocationValues(_serverNo, _path, "methods").size() - 1)
 		{
 			_errorCode = 405;
-			_responseBody = generateErrorPage(_errorCode);
+			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return;
 		}
-	}
-	if (access(_path.c_str(), F_OK) == -1)
-	{
-		_errorCode = 404;
-		_responseBody = generateErrorPage(_errorCode);
-		return;
-	}
-	else if (access(_path.c_str(), R_OK) == -1)
-	{
-
-		_errorCode = 403;
-		_responseBody = generateErrorPage(_errorCode);
-		return;
 	}
 	if (_method == "DELETE")
 	{
@@ -80,29 +91,37 @@ void GenerateBody::handleRequest()
 		{
 			perror( "Error deleting file" );
 			_errorCode = 403;
-			_responseBody = generateErrorPage(_errorCode);
+			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 		}
 		_errorCode = 204;
 		return;
 	}
 	std::string extension = isolateExtension();
-	if (extension.empty())
-	{
-		_errorCode = 200;
-		_responseBody = "";
-		return;
-	}
+	// if (extension.empty())
+	// {
+	// 	_errorCode = 200;
+	// 	_responseBody = "";
+	// 	return;
+	// }
 	if (extension == ".php" || extension == ".py")
 	{
 		if (_method != "GET" && _method != "POST")
 		{
 			_errorCode = 405;
-			_responseBody = generateErrorPage(405);
+			_responseBody = generateErrorPage(405, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return;
 		}
 		CGI cgi(_path, _uri, _method, _request, _lineEnding, extension);
-		_responseBody = cgi.getResponseBody();
 		_errorCode = cgi.getErrorCode();
+		if (_errorCode >= 500)
+		{
+			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			return;
+		}
+		_responseBody = cgi.getResponseBody();
 		_responseHeader = cgi.getCgiHeader();
 	}
 	else
@@ -118,13 +137,13 @@ bool	GenerateBody::requestErrors()
 		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/')
 	{
 		_errorCode = 400;
-		_responseBody = generateErrorPage(400);
+		_responseBody = generateErrorPage(400, _serverNo, _config);
 		return false;
 	}
 	else if (_requestBody.size() > _config.getBodySizeMax(_serverNo))
 	{
 		_errorCode = 413;
-		_responseBody = generateErrorPage(413);
+		_responseBody = generateErrorPage(413, _serverNo, _config);
 		return false;
 	}
 	return true;
@@ -172,9 +191,18 @@ std::string getRessource(const std::string &path)
     oss << ifs.rdbuf();
     return oss.str();
 }
-// std::string generateErrorPage(int errorCode, int serverNo ,HandleConfigFile &config)
-std::string generateErrorPage(int errorCode)
+
+std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &config)
 {
+
+	std::string path = config.getErrorPage(serverNo, errorCode);
+	if (!path.empty())
+	{
+		std::string extension = path.substr(path.find_last_of("."));
+		if (access(path.c_str(), F_OK) == 0 && access(path.c_str(), R_OK) == 0
+			&& (extension == ".html" || extension == ".htm"))
+			return getRessource(path);
+	}
 	ErrorCode errorMessage;
 	std::stringstream html;
 	html << "<!DOCTYPE html>\n";
