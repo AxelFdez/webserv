@@ -21,17 +21,46 @@ void GenerateBody::handleRequest()
 		return;
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
-	std::string ressource;
-	//if (_config.getLocationValues(_serverNo, _path, ))
-	//std::cerr << "location = " << tmp[0] << std::endl;
-	// _path = _config.getLocationValues(_serverNo, _path, "location")[0];
-	if (_path == "/")
+	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
+	for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 	{
-		//_path = "index.html";
+		if (access((ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
+		{
+			_path = ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i];
+			break;
+		}
+		if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
+			_path = ressource_path + _path;
 	}
-	//  std::cerr << "path = " << _path << std::endl;
-	_path = "/Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools" + _path; // recuperer le path du fichier de config
-	//std::cout << "path = " << _path << std::endl;
+	if (_path[_path.size() - 1] == '/')
+	{
+		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
+		{
+			_responseBody = generateListingDirectoryPage(_path, "", true);
+			_errorCode = 200;
+			_responseHeader = "Content_Type: text/html";
+			return;
+		}
+		else
+		{
+			_errorCode = 403;
+			_responseBody = generateErrorPage(_errorCode);
+			return;
+		}
+	}
+	for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "methods").size(); i++)
+	{
+		if (_method == _config.getLocationValues(_serverNo, _path, "methods")[i])
+		{
+			break;
+		}
+		if (i == _config.getLocationValues(_serverNo, _path, "methods").size() - 1)
+		{
+			_errorCode = 405;
+			_responseBody = generateErrorPage(_errorCode);
+			return;
+		}
+	}
 	if (access(_path.c_str(), F_OK) == -1)
 	{
 		_errorCode = 404;
@@ -87,17 +116,17 @@ bool	GenerateBody::requestErrors()
 {
 	if (_method != "GET" && _method != "POST" && _method != "DELETE"
 		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/')
-		{
-			_errorCode = 400;
-			_responseBody = generateErrorPage(400);
-			return false;
-		}
-	// else if (_requestBody.size() > BODY_SIZE_MAX)
-	// {
-	// 	_errorCode = 413;
-	// 	_responseBody = generateErrorPage(413);
-	// 	return false;
-	// }
+	{
+		_errorCode = 400;
+		_responseBody = generateErrorPage(400);
+		return false;
+	}
+	else if (_requestBody.size() > _config.getBodySizeMax(_serverNo))
+	{
+		_errorCode = 413;
+		_responseBody = generateErrorPage(413);
+		return false;
+	}
 	return true;
 }
 
@@ -143,8 +172,9 @@ std::string getRessource(const std::string &path)
     oss << ifs.rdbuf();
     return oss.str();
 }
-
-std::string generateErrorPage(int errorCode) {
+// std::string generateErrorPage(int errorCode, int serverNo ,HandleConfigFile &config)
+std::string generateErrorPage(int errorCode)
+{
 	ErrorCode errorMessage;
 	std::stringstream html;
 	html << "<!DOCTYPE html>\n";

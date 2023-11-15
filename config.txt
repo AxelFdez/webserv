@@ -22,7 +22,7 @@ server    [
 
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools;
         index index.html index.htm;
-        methods           GET GET;
+        methods           POST;
         redirect            path;
         default_file        path;
         download            off;
@@ -48,7 +48,7 @@ server    [
     error_500              ./website/serverError/500.html;
     error_502              ./website/serverError/502.html;
     error_503              ./website/serverError/503.html;
-    error_504              ./website/serverError/504.html   ;
+    error_504              ./website/serverError/504.html;
 
 ]
 

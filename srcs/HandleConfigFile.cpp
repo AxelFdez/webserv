@@ -6,7 +6,7 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/14 18:07:58 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/15 16:41:13 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,9 +170,12 @@ std::vector<std::vector<int> >   HandleConfigFile::getPorts() const{
     return _ports;
 }
 
-std::vector<int>                 HandleConfigFile::getBodySizeMax() const{
+int  HandleConfigFile::getBodySizeMax(size_t serverNb) const{
 
-    return _body_size_max;
+    if ( serverNb < _body_size_max.size() ) {
+        return _body_size_max[serverNb];
+    }
+    return -1;
 }
 
 std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const& toFind) {
@@ -192,28 +195,46 @@ std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const
     return "";
 }
 
-std::vector<std::string> HandleConfigFile::getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const{
+std::map<std::string, std::vector<std::string> > *HandleConfigFile::findLocation(size_t serverNb, std::string const& findLoc) {
 
-    std::vector<std::string> result;
+    // if location 'findLoc' is found -> return map's address
+    // else -> return the default location '/'
+    // if there is no default location -> return NULL
 
+    std::map<std::string, std::vector<std::string> > *mapReturn = NULL;
     if ( serverNb < _locations.size() ) {
 
-        for ( int i = 0; i < _locations[serverNb].size(); i++ ) {
+        for ( size_t i = 0; i < _locations[serverNb].size(); i++ ) {
 
             std::map<std::string, std::vector<std::string> >::const_iterator it = _locations[serverNb][i].find("location");
             if ( it != _locations[serverNb][i].end() ) {
 
-                if ( std::find( it->second.begin(), it->second.end(), request ) != it->second.end() ) {
+                if ( it->second[0] == "/" ) { // default location
+                    mapReturn = &_locations[serverNb][i];
+                    continue;
+                }
+                if ( it->second[0].find( findLoc.c_str(), 0, it->second[0].length() ) == 0 ) {
 
-                    it = _locations[serverNb][i].find(toFind);
-                    if ( it != _locations[serverNb][i].end() ) {
-
-                        result = it->second;
-                        break;
-                    }
+                    mapReturn = &_locations[serverNb][i];
+                    break;
                 }
             }
         }
     }
-    return result;
+    return mapReturn;
 }
+
+std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, std::string const& path, std::string const& toFind){
+
+    static std::vector<std::string> emptyVector;
+    std::map<std::string, std::vector<std::string> > *location = findLocation(serverNb, path);
+    if ( location ) {
+
+        std::map<std::string, std::vector<std::string> >::iterator it = (*location).find( toFind );
+        if ( it != (*location).end() ) {
+            return it->second;
+        }
+    }
+    return emptyVector;
+}
+
