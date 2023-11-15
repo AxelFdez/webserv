@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdio>
+#include <dirent.h>
 
 #include "../includes/HandleConfigFile.hpp"
 #include "../includes/ClientRequest.hpp"
@@ -50,7 +51,7 @@ class Server
 
 
 	private :
-		HandleConfigFile	 			_config;
+		HandleConfigFile				 _config;
 		std::vector<std::vector<int> >	_socket;
 		struct sockaddr_in				_address;
 

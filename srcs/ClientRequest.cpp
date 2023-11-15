@@ -1,6 +1,6 @@
 #include "../includes/ClientRequest.hpp"
 
-ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets)
+ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets, HandleConfigFile config) : _config(config)
 {
 	_totalServerSockets = 0;
 	for (size_t i = 0; i < serverSockets.size(); i++)
@@ -147,7 +147,7 @@ void ClientRequest::sendResponse()
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
 			displayRequest(_clients[_pollSockets[i].fd].getRequest(), 0);
-			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer());
+			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);

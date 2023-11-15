@@ -1,6 +1,6 @@
 #include "../includes/GenerateBody.hpp"
 
-GenerateBody::GenerateBody(std::map<std::string, std::string> request, std::string lineEnding) : _request(request), _lineEnding(lineEnding)
+GenerateBody::GenerateBody(std::map<std::string, std::string> request, std::string lineEnding, int serverNo, HandleConfigFile &config) : _request(request), _lineEnding(lineEnding), _serverNo(serverNo), _config(config)
 {
 	_requestBody = request["Body"];
 	std::istringstream split(request["RequestLine"]);
@@ -21,8 +21,15 @@ void GenerateBody::handleRequest()
 		return;
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
+	std::string ressource;
+	//if (_config.getLocationValues(_serverNo, _path, ))
+	//std::cerr << "location = " << tmp[0] << std::endl;
+	// _path = _config.getLocationValues(_serverNo, _path, "location")[0];
 	if (_path == "/")
-		_path = "/index.html";
+	{
+		//_path = "index.html";
+	}
+	//  std::cerr << "path = " << _path << std::endl;
 	_path = "/Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools" + _path; // recuperer le path du fichier de config
 	//std::cout << "path = " << _path << std::endl;
 	if (access(_path.c_str(), F_OK) == -1)
@@ -33,7 +40,7 @@ void GenerateBody::handleRequest()
 	}
 	else if (access(_path.c_str(), R_OK) == -1)
 	{
-		
+
 		_errorCode = 403;
 		_responseBody = generateErrorPage(_errorCode);
 		return;
@@ -67,7 +74,7 @@ void GenerateBody::handleRequest()
 		CGI cgi(_path, _uri, _method, _request, _lineEnding, extension);
 		_responseBody = cgi.getResponseBody();
 		_errorCode = cgi.getErrorCode();
-		_cgiHeader = cgi.getCgiHeader();
+		_responseHeader = cgi.getCgiHeader();
 	}
 	else
 	{
@@ -121,9 +128,9 @@ const std::string	&GenerateBody::getPath() const
 	return _path;
 }
 
-const std::string	&GenerateBody::getCgiHeader() const
+const std::string	&GenerateBody::getResponseHeader() const
 {
-	return _cgiHeader;
+	return _responseHeader;
 }
 
 std::string getRessource(const std::string &path)
@@ -139,24 +146,62 @@ std::string getRessource(const std::string &path)
 
 std::string generateErrorPage(int errorCode) {
 	ErrorCode errorMessage;
-    std::stringstream html;
-    html << "<!DOCTYPE html>\n";
-    html << "<html lang=\"en\">\n";
-    html << "<head>\n";
-    html << "<meta charset=\"UTF-8\">\n";
-    html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-    html << "<title>Error " << errorCode << "</title>\n";
-    html << "<style>\n";
+	std::stringstream html;
+	html << "<!DOCTYPE html>\n";
+	html << "<html lang=\"en\">\n";
+	html << "<head>\n";
+	html << "<meta charset=\"UTF-8\">\n";
+	html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	html << "<title>Error " << errorCode << "</title>\n";
+	html << "<style>\n";
 	html << "html { color-scheme: light dark; }";
-    html << "body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n";
-    html << "h1 { color: #d33; }\n";
-    html << "</style>\n";
-    html << "</head>\n";
-    html << "<body>\n";
-    html << "<h1>Error " << errorCode << "</h1>\n";
-    html << "<h2>" << errorMessage.getMessage(errorCode) << "</h2>\n";
-    html << "<p>" << "webserv/chmassa-axfernan" << "</p>\n";
-    html << "</body>\n";
-    html << "</html>\n";
-    return html.str();
+	html << "body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n";
+	html << "h1 { color: #d33; }\n";
+	html << "</style>\n";
+	html << "</head>\n";
+	html << "<body>\n";
+	html << "<h1>Error " << errorCode << "</h1>\n";
+	html << "<h2>" << errorMessage.getMessage(errorCode) << "</h2>\n";
+	html << "<p>" << "webserv/chmassa-axfernan" << "</p>\n";
+	html << "</body>\n";
+	html << "</html>\n";
+	return html.str();
+}
+
+std::string generateListingDirectoryPage(const std::string& path, const std::string& indent = "", bool isRoot = true)
+{
+	DIR *dir;
+	struct dirent *entry;
+	std::ostringstream html;
+
+	if (isRoot)
+	{
+		html << "<html>\n<head><title>Directory Listing</title></head>\n<body>\n";
+		html << "<h2>Listing " << path << "</h2>\n";
+	}
+	dir = opendir(path.c_str());
+	if (dir == NULL) {
+		perror("opendir");
+		if (isRoot)
+			html << "</body>\n</html>\n";
+		return html.str();
+	}
+	html << indent << "<ul>\n";
+	while ((entry = readdir(dir)) != NULL)
+	{
+		std::string entryName(entry->d_name);
+		if (entryName == "." || entryName == "..") continue;
+		html << indent << "  <li>" << (entry->d_type == DT_DIR ? "<b>" + entryName + "/</b>" : entryName);
+		if (entry->d_type == DT_DIR) {
+			html << generateListingDirectoryPage(path + "/" + entryName, indent + "    ", false);
+			html << indent << "  </li>\n";
+		} else {
+			html << "</li>\n";
+		}
+	}
+	html << indent << "</ul>\n";
+	closedir(dir);
+	if (isRoot)
+		html << "</body>\n</html>\n";
+	return html.str();
 }

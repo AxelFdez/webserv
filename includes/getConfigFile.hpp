@@ -6,7 +6,7 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:28 by chris             #+#    #+#             */
-/*   Updated: 2023/11/14 18:07:38 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/15 09:18:30 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class getConfigFile {
 
     private:
         getConfigFile();
-        getConfigFile( getConfigFile const& src );
+        // getConfigFile( getConfigFile const& src );
         getConfigFile & operator=( getConfigFile const& rhs );
 
         bool                        _serverToken;

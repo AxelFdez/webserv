@@ -20,7 +20,7 @@ server    [
     location   /        {
 
 
-        root /website/html;
+        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools;
         index index.html index.htm;
         methods           GET GET;
         redirect            path;
@@ -31,7 +31,7 @@ server    [
 
     }
 
-    location = ./etc            {
+    location  ./etc            {
 
         root   /website/html;
         index  index.html index.htm;

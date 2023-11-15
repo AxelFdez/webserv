@@ -41,7 +41,7 @@ class HandleConfigFile : public getConfigFile {
 
     private:
         // Copy & Affectation
-        HandleConfigFile( HandleConfigFile const& src );
+        // HandleConfigFile( HandleConfigFile const& src );
         HandleConfigFile & operator=( HandleConfigFile const& rhs );
 
         // Attributes

@@ -45,7 +45,7 @@ class ClientInfo
 class ClientRequest
 {
 	public :
-		ClientRequest(std::vector<std::vector<int> > serverSockets);
+		ClientRequest(std::vector<std::vector<int> > serverSockets, HandleConfigFile config);
 		~ClientRequest();
 
 		void		manageRequest();
@@ -58,6 +58,8 @@ class ClientRequest
 		void		displayRequest(const std::string &, int) const;
 
 	private :
+		ClientRequest();
+		HandleConfigFile			 _config;
 		std::vector<int>			_socketsByServer;
 		int							_totalServerSockets;
 		std::vector<struct pollfd>	_pollSockets;

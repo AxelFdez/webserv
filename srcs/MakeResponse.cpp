@@ -1,6 +1,6 @@
 #include "../includes/MakeResponse.hpp"
 
-MakeResponse::MakeResponse(std::string request, int serverNo) : _request(request), _serverNo(serverNo)
+MakeResponse::MakeResponse(std::string request, int serverNo, HandleConfigFile &config) : _request(request), _serverNo(serverNo), _config(config)
 {
 	_lineEnding = detectLineEnding(request);
 	handleRequest();
@@ -41,9 +41,9 @@ void	MakeResponse::mappedRequest()
 
 void	MakeResponse::generateResponse()
 {
-	GenerateBody body(_mappedRequest, _lineEnding);
+	GenerateBody body(_mappedRequest, _lineEnding, _serverNo, _config);
 	_responseBody = body.getBody();
-	GenerateHeader header(body.getPath(), body.getCode(), body.getCgiHeader());
+	GenerateHeader header(body.getPath(), body.getCode(), body.getResponseHeader());
 	_responseHeader = header.getHeader();
 }
 

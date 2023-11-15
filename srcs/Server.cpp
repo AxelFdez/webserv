@@ -172,7 +172,7 @@ void Server::launchServer()
 
 void Server::handleClients()
 {
-	ClientRequest clientRequest(_socket);
+	ClientRequest clientRequest(_socket, _config);
 	clientRequest.manageRequest();
 }
 
