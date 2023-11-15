@@ -23,7 +23,7 @@ void GenerateBody::handleRequest()
 	_path = _uri.substr(0, _uri.find('?', 0));
 	if (_path == "/")
 		_path = "/index.html";
-	_path = "/Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools" + _path; // recuperer le path du fichier de config
+	_path = "/Users/chris/Desktop/webServe42/srcs/tools" + _path; // recuperer le path du fichier de config
 	//std::cout << "path = " << _path << std::endl;
 	if (access(_path.c_str(), F_OK) == -1)
 	{

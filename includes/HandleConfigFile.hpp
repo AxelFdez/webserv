@@ -33,8 +33,9 @@ class HandleConfigFile : public getConfigFile {
         virtual ~HandleConfigFile();
 
         // Getters
-        std::string                     getServerValues(size_t serverNb, std::string const& toFind);
-        std::vector<std::string>        getLocationValues(size_t serverNb, std::string const& request, std::string const& toFind) const;
+        std::string                                       getServerValues(size_t serverNb, std::string const& toFind);
+        std::map<std::string, std::vector<std::string> > *findLocation(size_t serverNb, std::string const& findLoc);
+        std::vector<std::string>                         &getLocationValues(size_t serverNb, std::string const& path, std::string const& toFind); 
         std::vector<std::vector<int> >  getPorts() const;
         std::vector<int>                getBodySizeMax() const;
 
