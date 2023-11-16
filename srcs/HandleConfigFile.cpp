@@ -6,7 +6,7 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/15 21:11:19 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/16 13:58:16 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ HandleConfigFile::~HandleConfigFile() {}
 
 void HandleConfigFile::getLocations() {
 
-    for ( int i = 0; i != config.size(); i++ ) {
+    for (size_t i = 0; i != config.size(); i++ ) {
 
         std::vector<std::string>::const_iterator it = config[i].begin();
         _locations.push_back(std::vector<std::map<std::string, std::vector<std::string> > >());
@@ -59,7 +59,7 @@ void HandleConfigFile::get_ports_bodySize() {
     */
 
     std::vector<std::vector<std::string> >::iterator it = config.begin();
-    for ( int i = 0; i != config.size(); i++ ) {
+    for ( size_t i = 0; i != config.size(); i++ ) {
 
         _ports.push_back( std::vector<int>() );
         std::vector<std::string>::iterator it = config[i].begin();

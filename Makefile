@@ -6,7 +6,7 @@
 #    By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/26 11:05:14 by axfernan          #+#    #+#              #
-#    Updated: 2023/10/28 12:55:49 by axfernan         ###   ########.fr        #
+#    Updated: 2023/11/16 14:18:24 by axfernan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,17 +14,10 @@ NAME = webserv
 
 FLAGS =  -std=c++98 -g -fsanitize=address #-Werror -Wextra -Wall
 
-SRC = $(MAIN_SRC) $(MAIN_HDR)
+SRC = $(wildcard srcs/*.cpp) # Supposition que les .cpp sont dans srcs/
+HDR = $(wildcard includes/*.hpp) # Supposition que les .hpp sont dans includes/
 
-MAIN = *.cpp
-HMAIN = *.hpp
-
-MAIN_SRC = $(addprefix srcs/, $(MAIN))
-MAIN_HDR = $(addprefix includes/, $(HMAIN))
-
-all: $(NAME)
-
-OBJ = $(MAIN:.cpp=.o)
+OBJ = $(SRC:.cpp=.o)
 
 NONE='\033[0m'
 GREEN='\033[32m'
@@ -32,17 +25,19 @@ YELLOW='\033[33m'
 GRAY='\033[2;37m'
 CURSIVE='\033[3m'
 
-$(NAME) : $(OBJ) $(OBJ_BONUS)
+all: $(NAME)
+
+$(NAME): $(OBJ)
 	@echo $(CURSIVE)$(GRAY) "     - Compiling $(NAME)..." $(NONE)
-	@c++  $(FLAGS) $(OBJ) -o $(NAME)
+	@c++ $(FLAGS) $(OBJ) -o $(NAME)
 	@echo $(GREEN)"- Compiled -"$(NONE)
 
-$(OBJ): $(SRC)
+%.o: %.cpp $(HDR)
 	@echo $(CURSIVE)$(GRAY) "     - Making $(NAME) object files..." $(NONE)
-	@c++ $(FLAGS) -c $(SRC)
+	@c++ $(FLAGS) -c $< -o $@
 
 clean:
-	@rm -f *.o
+	@rm -f srcs/*.o
 	@echo $(CURSIVE)$(YELLOW) "     - Removing $(NAME) objects files..." $(NONE)
 
 fclean: clean

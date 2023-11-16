@@ -3,6 +3,7 @@
 GenerateBody::GenerateBody(std::map<std::string, std::string> request, std::string lineEnding, int serverNo, HandleConfigFile &config) : _request(request), _lineEnding(lineEnding), _serverNo(serverNo), _config(config)
 {
 	_requestBody = request["Body"];
+	_requestHost = request["Host"].substr(0, request["Host"].find(':'));
 	std::istringstream split(request["RequestLine"]);
 	getline(split, _method, ' ');
 	getline(split, _uri, ' ');
@@ -16,14 +17,49 @@ GenerateBody::~GenerateBody() {}
 
 void GenerateBody::handleRequest()
 {
+	// check if request is valid
 	if (requestErrors() == false)
 	{
 		return;
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
+
+	// check methods authorized for this path in config file
+	for(size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "methods").size(); i++)
+	{
+		if (_method == _config.getLocationValues(_serverNo, _path, "methods")[i])
+		{
+			break;
+		}
+		if (i == _config.getLocationValues(_serverNo, _path, "methods").size() - 1)
+		{
+			_errorCode = 405;
+			_responseBody = generateErrorPage(405, _serverNo, _config);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			return;
+
+		}
+	}
+
+	//std::cerr << "path = " << _path << std::endl;
+	//std::cerr << "ressources =" << _config.getLocationValues(_serverNo, _path, "redirect")[0] << std::endl;
+
+	// check redirect for this path in config file
+	// if (!_config.getLocationValues(_serverNo, _path, "redirect").empty() \
+	// 	&& _path != "/" + _config.getLocationValues(_serverNo, _path, "redirect")[0])
+	// {
+	// 	_errorCode = 301;
+	// 	_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+	// 	_responseHeader = "Location: " + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + std::to_string(_responseBody.size());
+	// 	return;
+	// }
+
+	// define root for this path in config file
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
 	// std::cerr << "ressource_path = " << ressource_path << std::endl;
 	_path = ressource_path + _path;
+
+	// check index for this path in config file
 	if (_path[_path.size() - 1] == '/')
 	{
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
@@ -38,6 +74,7 @@ void GenerateBody::handleRequest()
 		}
 	}
 
+	// check directory listing for this path in config file if path is a directory
 	if (_path[_path.size() - 1] == '/')
 	{
 		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
@@ -56,6 +93,7 @@ void GenerateBody::handleRequest()
 		}
 	}
 	//std::cerr <<  "path = " << _path << std::endl;
+	// check if path exists and is readable
 	if (access(_path.c_str(), F_OK) == -1)
 	{
 		_errorCode = 404;
@@ -70,20 +108,6 @@ void GenerateBody::handleRequest()
 		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
 		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 		return;
-	}
-	for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "methods").size(); i++)
-	{
-		if (_method == _config.getLocationValues(_serverNo, _path, "methods")[i])
-		{
-			break;
-		}
-		if (i == _config.getLocationValues(_serverNo, _path, "methods").size() - 1)
-		{
-			_errorCode = 405;
-			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
-			return;
-		}
 	}
 	if (_method == "DELETE")
 	{
@@ -134,13 +158,20 @@ void GenerateBody::handleRequest()
 bool	GenerateBody::requestErrors()
 {
 	if (_method != "GET" && _method != "POST" && _method != "DELETE"
-		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/')
+		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/' && _requestHost.empty())
 	{
 		_errorCode = 400;
 		_responseBody = generateErrorPage(400, _serverNo, _config);
 		return false;
 	}
-	else if (_requestBody.size() > _config.getBodySizeMax(_serverNo))
+	else if (_requestHost != _config.getServerValues(_serverNo, "host") \
+		&& _requestHost != _config.getServerValues(_serverNo, "server_name"))
+	{
+		_errorCode = 404;
+		_responseBody = generateErrorPage(404, _serverNo, _config);
+		return false;
+	}
+	else if (_requestBody.size() > static_cast<size_t>(_config.getBodySizeMax(_serverNo)))
 	{
 		_errorCode = 413;
 		_responseBody = generateErrorPage(413, _serverNo, _config);

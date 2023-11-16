@@ -6,6 +6,7 @@ CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::st
 	_uri = uri;
 	_method = method;
 	_request = request;
+	_requestBody = request["Body"];
 	_lineEnding = lineEnding;
 	_extension = extension;
 	executeCGI();
@@ -49,6 +50,7 @@ void	CGI::executeCGI()
 		execve(cmd[0], cmd, env.data());
 		perror("execve");
 	}
+	std::cerr << "_requestBody = " << _requestBody << std::endl;
 	write(stdinPipe[1], _requestBody.c_str(), _requestBody.length());
 	close(stdinPipe[1]);
 	close(stdinPipe[0]);
@@ -57,6 +59,7 @@ void	CGI::executeCGI()
 	if (!fillResponseFrom(stdoutPipe[0]))
 	{
 		_errorCode = 500;
+		close(stdoutPipe[0]);
 		return;
 	}
 	close(stdoutPipe[0]);
@@ -106,7 +109,7 @@ std::vector<std::string> CGI::envCGI()
 		env.push_back("REQUEST_METHOD=" + _method);
 		if (_method == "POST")
 		{
-        	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");
+        	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
         	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length()));
     	}
 		env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
@@ -118,6 +121,8 @@ std::vector<std::string> CGI::envCGI()
 		{
 			env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 		}
+		for(size_t i = 0; i < env.size(); i++)
+			std::cerr << env[i] << std::endl;
 	return env;
 }
 

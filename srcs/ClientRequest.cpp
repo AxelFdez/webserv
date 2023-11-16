@@ -63,7 +63,7 @@ void ClientRequest::pollFunc()
 
 void ClientRequest::listenning()
 {
-	for (size_t i = 0; i < _totalServerSockets; i++)
+	for (int i = 0; i < _totalServerSockets; i++)
 	{
 		if (listen(_pollSockets[i].fd, 50) < 0)
 		{
@@ -80,7 +80,7 @@ void ClientRequest::acceptNewClient()
 	int newClient;
 	int ref = -1;
 	int server = 0;
-	for (size_t i = 0; i < _totalServerSockets; i++)
+	for (int i = 0; i < _totalServerSockets; i++)
 	{
 		if (ref == _socketsByServer[server])
 		{
@@ -115,14 +115,16 @@ void ClientRequest::readRequest()
 	{
 		if (_pollSockets[i].revents & POLLIN)
 		{
-			char request[1024];
-			ssize_t bytes = recv(_pollSockets[i].fd, request, sizeof(request), 0);
+			int bufferSize = 1024;
+			char request[bufferSize];
+			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
 			if (bytes < 0)
 				perror("Error data reception");
 			else if (bytes == 0)
 				perror("Client closed the connection");
 			else
 			{
+				std::cerr << bytes << std::endl;
 				request[bytes] = '\0';
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
 					_clients[_pollSockets[i].fd].setRequest(request);
@@ -151,7 +153,7 @@ void ClientRequest::sendResponse()
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-			ssize_t bytesSent = 0;
+			u_long bytesSent = 0;
 			while (bytesSent < response.getResponse().size())
 			{
 				std::string partialResponse= response.getResponse().substr(bytesSent);

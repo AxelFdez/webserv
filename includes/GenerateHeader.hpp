@@ -15,9 +15,9 @@ class GenerateHeader
 
 	private :
 		std::string _path;
-		std::string _header;
-		std::string _cgiHeader;
 		int			_code;
+		std::string _cgiHeader;
+		std::string _header;
 
 };
 

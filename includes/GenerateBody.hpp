@@ -7,7 +7,7 @@
 class GenerateBody
 {
 	public :
-		GenerateBody(std::map<std::string, std::string> request, std::string body,int serverNo, HandleConfigFile &config);
+		GenerateBody(std::map<std::string, std::string> request, std::string lineEnding, int serverNo, HandleConfigFile &config);
 		~GenerateBody();
 
 		void				handleRequest();
@@ -19,10 +19,12 @@ class GenerateBody
 		const std::string	&getResponseHeader() const;
 
 	private :
-		HandleConfigFile _config;
-		int				_serverNo;
 		std::map<std::string, std::string> _request;
+		std::string		_lineEnding;
+		int				_serverNo;
+		HandleConfigFile _config;
 		int				_errorCode;
+		std::string		_requestHost;
 		std::string		_method;
 		std::string 	_uri;
 		std::string 	_protocol;
@@ -30,7 +32,6 @@ class GenerateBody
 		std::string 	_requestBody;
 		std::string 	_responseBody;
 		std::string 	_responseHeader;
-		std::string		_lineEnding;
 };
 
 std::string getRessource(const std::string &path);
