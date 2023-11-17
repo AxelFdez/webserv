@@ -10,7 +10,7 @@ server    [
     listen   8081;
     host    127.0.0.1;
     server_name localhost;
-    body_size_max 10000;
+    body_size_max 1000000;
 
 
 #djfhgkjdfhgkjdfhgkjdgfjmjgmkjdfgh
@@ -24,18 +24,18 @@ server    [
         index index.html index.htm;
         methods           GET POST;
         default_file        path;
-        download            off;
-        download_folder     path;
+        download            on;
+        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/depot;
         directory_listing          on     ;
 
     }
 
-    location  ./etc            {
+    location  /test.php            {
 
         root   /website/html;
         index  index.html index.htm;
         methods GET POST DELETE;
-        redirect            path;
+        redirect            img.png;
         default_file       blabla ;
         download            on;
         download_folder     path;
@@ -104,3 +104,9 @@ server [
 ]
 
 
+
+------WebKitFormBoundary0hrNbCKhxCmA0pki
+Content-Disposition: form-data; name="submit"
+
+Télécharger le fichier
+------WebKitFormBoundary0hrNbCKhxCmA0pki--

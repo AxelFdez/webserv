@@ -1,9 +1,14 @@
 #include "../includes/MakeResponse.hpp"
 
-MakeResponse::MakeResponse(std::string request, int serverNo, HandleConfigFile &config) : _request(request), _serverNo(serverNo), _config(config)
+MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, HandleConfigFile &config) : _binaryRequest(binaryRequest), _serverNo(serverNo), _config(config)
 {
-	_lineEnding = detectLineEnding(request);
+	for (int i = 0; i < binaryRequest.size(); i++)
+		_request.push_back(binaryRequest[i]);
+	_request.push_back('\0');
+	displayRequest(_request, 0);
+	_lineEnding = detectLineEnding(_request);
 	handleRequest();
+	// std::cout << "REQUEST : " << _request << std::endl;
 	//std::cout << "NEW REQUEST\n" << std::endl;
 }
 
@@ -41,7 +46,7 @@ void	MakeResponse::mappedRequest()
 
 void	MakeResponse::generateResponse()
 {
-	GenerateBody body(_mappedRequest, _lineEnding, _serverNo, _config);
+	GenerateBody body(_binaryRequest, _mappedRequest, _lineEnding, _serverNo, _config);
 	_responseBody = body.getBody();
 	GenerateHeader header(body.getPath(), body.getCode(), body.getResponseHeader());
 	_responseHeader = header.getHeader();

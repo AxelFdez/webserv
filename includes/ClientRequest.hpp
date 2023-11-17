@@ -20,7 +20,7 @@ class ClientInfo
 	public :
 		ClientInfo() {}
 		~ClientInfo() {}
-		void		setRequest(std::string request)
+		void		setRequest(std::vector<char> request)
 		{
 			_request = request;
 		}
@@ -28,7 +28,7 @@ class ClientInfo
 		{
 			_belongOfServer = ref;
 		}
-		std::string	getRequest()
+		std::vector<char>	getRequest()
 		{
 			return _request;
 		}
@@ -38,7 +38,7 @@ class ClientInfo
 		}
 
 	private :
-		std::string _request;
+		std::vector<char> _request;
 		int			_belongOfServer;
 };
 
@@ -55,7 +55,6 @@ class ClientRequest
 		void		pollFunc();
 		void		listenning();
 
-		void		displayRequest(const std::string &, int) const;
 
 	private :
 		ClientRequest();
@@ -67,3 +66,4 @@ class ClientRequest
 		//std::map<int, std::string>	_client;
 };
 
+void		displayRequest(const std::string &, int);

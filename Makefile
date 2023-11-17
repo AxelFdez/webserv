@@ -6,7 +6,7 @@
 #    By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/26 11:05:14 by axfernan          #+#    #+#              #
-#    Updated: 2023/11/16 14:18:24 by axfernan         ###   ########.fr        #
+#    Updated: 2023/11/17 09:10:38 by axfernan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,8 +14,8 @@ NAME = webserv
 
 FLAGS =  -std=c++98 -g -fsanitize=address #-Werror -Wextra -Wall
 
-SRC = $(wildcard srcs/*.cpp) # Supposition que les .cpp sont dans srcs/
-HDR = $(wildcard includes/*.hpp) # Supposition que les .hpp sont dans includes/
+SRC = $(wildcard srcs/*.cpp)
+HDR = $(wildcard includes/*.hpp)
 
 OBJ = $(SRC:.cpp=.o)
 

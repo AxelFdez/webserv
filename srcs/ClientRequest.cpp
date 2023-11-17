@@ -124,14 +124,17 @@ void ClientRequest::readRequest()
 				perror("Client closed the connection");
 			else
 			{
-				std::cerr << bytes << std::endl;
-				request[bytes] = '\0';
+				//request[bytes] = '\0';
+				std::vector<char> requestBinary(request, request + bytes);
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
-					_clients[_pollSockets[i].fd].setRequest(request);
+					_clients[_pollSockets[i].fd].setRequest(requestBinary);
 				else
 				{
-					std::string tmp = _clients[_pollSockets[i].fd].getRequest();
-					_clients[_pollSockets[i].fd].setRequest(tmp + request);
+					std::vector<char> tmp = _clients[_pollSockets[i].fd].getRequest();
+					std::vector<char> truncRequest;
+					truncRequest = tmp;
+					truncRequest.insert(truncRequest.end(), requestBinary.begin(), requestBinary.end());
+					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 				}
 				continue;
 			}
@@ -148,7 +151,8 @@ void ClientRequest::sendResponse()
 	{
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
-			displayRequest(_clients[_pollSockets[i].fd].getRequest(), 0);
+			// std::string toDisplay = _clients[_pollSockets[i].fd].getRequest().data();
+			// displayRequest(toDisplay, 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
@@ -178,7 +182,7 @@ void ClientRequest::sendResponse()
 	}
 }
 
-void ClientRequest::displayRequest(const std::string  &request, int modifier) const
+void displayRequest(const std::string  &request, int modifier)
 {
 	if (!modifier)
 		std::cout << "\033[0;41m-----REQUEST------" << std::endl;

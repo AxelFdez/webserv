@@ -121,8 +121,8 @@ std::vector<std::string> CGI::envCGI()
 		{
 			env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 		}
-		for(size_t i = 0; i < env.size(); i++)
-			std::cerr << env[i] << std::endl;
+		// for(size_t i = 0; i < env.size(); i++)
+		// 	std::cerr << env[i] << std::endl;
 	return env;
 }
 

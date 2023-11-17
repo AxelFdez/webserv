@@ -10,7 +10,7 @@ class GenerateHeader;
 class MakeResponse
 {
 	public :
-		MakeResponse(std::string request, int serverNo, HandleConfigFile &config);
+		MakeResponse(std::vector<char> request, int serverNo, HandleConfigFile &config);
 		~MakeResponse();
 		std::string	getResponse();
 		void		handleRequest();
@@ -20,7 +20,8 @@ class MakeResponse
 
 	private :
 		HandleConfigFile _config;
-		std::string 	_request;
+		std::string	_request;
+		std::vector<char> 	_binaryRequest;
 		int				_serverNo;
 		std::map<std::string, std::string> _mappedRequest;
 		std::string 	_requestBody;
