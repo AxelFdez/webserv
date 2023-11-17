@@ -10,7 +10,7 @@ server    [
     listen   8081;
     host    127.0.0.1;
     server_name localhost;
-    body_size_max 10000;
+    body_size_max 1;
 
 
 #djfhgkjdfhgkjdfhgkjdgfjmjgmkjdfgh
@@ -20,7 +20,7 @@ server    [
     location   /        {
 
 
-        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools;
+        root /Users/chris/Desktop/webserv42/srcs/tools/website_1;
         index index.html index.htm;
         methods           GET POST;
         default_file        path;
@@ -42,12 +42,12 @@ server    [
         directory_listing      off;
     }
 
-    error_403              ./website/clientError/403.html;
-    error_404              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/errorPages/404.html;
-    error_500              ./website/serverError/500.html;
-    error_502              ./website/serverError/502.html;
-    error_503              ./website/serverError/503.html;
-    error_504              ./website/serverError/504.html;
+    error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/403.html;
+    error_404              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/404.html;
+    error_500              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/500.html;
+    error_502              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/502.html;
+    error_503              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/503.html;
+    error_504              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/504.html;
 
 ]
 
@@ -59,13 +59,13 @@ server [
     listen                   8090;
     listen                   8095;
     listen                   8083;
-    host              127.0.0.1;
-    server_name         chmassa;
-    body_size_max            80;
+    host                127.0.0.1;
+    server_name           chmassa.42.fr;
+    body_size_max               8;
 
     location / {
 
-        root   /website/html;
+        root   /Users/chris/Desktop/webserv42/srcs/tools/website_2;
         index index.html index.htm;
 
         methods    GET POST DELETE;
@@ -93,12 +93,12 @@ server [
 
     }
 
-    error_403              ./website/clientError/403.html;
-    error_404              ./website/clientError/404.html;
-    error_500              ./website/serverError/500.html;
-    error_502              ./website/serverError/502.html;
-    error_503              ./website/serverError/503.html;
-    error_504              ./website/serverError/504.html;
+    error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/403.html;
+    error_404              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/404.html;
+    error_500              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/500.html;
+    error_502              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/502.html;
+    error_503              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/503.html;
+    error_504              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/504.html;
 
 
 ]

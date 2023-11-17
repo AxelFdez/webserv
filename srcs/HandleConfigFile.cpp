@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/16 13:58:16 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/17 09:42:45 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ void HandleConfigFile::get_ports_bodySize() {
                 std::istringstream iss( value );
                 int number;
                 if (iss >> number ) {
-                    _body_size_max.push_back( number );
+                    _body_size_max.push_back( number * 1000000 );
                 }
             }
         }
@@ -172,7 +172,7 @@ std::vector<std::vector<int> >   HandleConfigFile::getPorts() const{
     return _ports;
 }
 
-int  HandleConfigFile::getBodySizeMax(size_t serverNb) const{
+long long  HandleConfigFile::getBodySizeMax(size_t serverNb) const{
 
     if ( serverNb < _body_size_max.size() ) {
         return _body_size_max[serverNb];

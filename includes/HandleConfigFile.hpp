@@ -37,7 +37,7 @@ class HandleConfigFile : public getConfigFile {
         std::map<std::string, std::vector<std::string> > *findLocation(size_t serverNb, std::string const& findLoc);
         std::vector<std::string>                         &getLocationValues(size_t serverNb, std::string const& path, std::string const& toFind);
         std::vector<std::vector<int> >                    getPorts() const;
-        int                                               getBodySizeMax(size_t serverNb) const;
+        long long                                         getBodySizeMax(size_t serverNb) const;
         std::string const getErrorPage( size_t serverNb, int errorCode );
 
 
@@ -48,7 +48,7 @@ class HandleConfigFile : public getConfigFile {
 
         // Attributes
         std::vector<std::vector<int> >                                               _ports;
-        std::vector<int>                                                             _body_size_max;
+        std::vector<long long>                                                             _body_size_max;
         std::vector<std::vector<std::map<std::string, std::vector<std::string> > > > _locations;
 
 
