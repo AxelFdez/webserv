@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload file</title>
+   
+    <style>
+        html { color-scheme: light dark; }
+        body {
+            width: 35em;
+            margin: 0 auto;
+            font-family: Tahoma, Verdana, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Upload a file to the server</h1>
+    <h2>You are in website_1 !!!</h2>
+
+    <form action="upload.php" method="post" enctype="multipart/form-data">
+        <label for="file">Sélectionnez un fichier :</label>
+        <input type="file" name="file" id="file" required="submit">
+        <input type="submit" value="Télécharger le fichier" name="submit">
+    </form>
+
+</body>
+</html>

@@ -38,7 +38,7 @@ void	CGI::executeCGI()
 		chdir(getDirectory().c_str());
 		char *cmd[2];
 		if (_extension == ".php")
-			cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
+			cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
 		else if (_extension == ".py")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
