@@ -368,3 +368,25 @@ std::string generateListingDirectoryPage(const std::string& path, const std::str
 		html << "</body>\n</html>\n";
 	return html.str();
 }
+
+bool GenerateBody::isFile(const char* path) {
+    struct stat fileInfo;
+    
+    if (stat(path, &fileInfo) != 0) {
+        
+        return false;
+    }
+
+    return S_ISREG(fileInfo.st_mode);
+}
+
+bool GenerateBody::isDir(const char* path) {
+    struct stat dirInfo;
+
+    if (stat(path, &dirInfo) != 0) {
+       
+        return false;
+    }
+    return S_ISDIR(dirInfo.st_mode);
+}
+

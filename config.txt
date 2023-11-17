@@ -30,16 +30,18 @@ server    [
 
     }
 
-    location  /test.php            {
+    location  /side_page.html      {
 
-        root   /website/html;
-        index  index.html index.htm;
+        root   /Users/chris/Desktop/webserv42/srcs/tools/side_pages;
+
+        index  side_page.html;
         methods GET POST DELETE;
-        redirect            img.png;
+        
+
         default_file       blabla ;
         download            on;
         download_folder     path;
-        directory_listing      off;
+        directory_listing      on;
     }
 
     error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/403.html;

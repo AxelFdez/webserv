@@ -33,6 +33,9 @@ class GenerateBody
 		std::string 	_requestBody;
 		std::string 	_responseBody;
 		std::string 	_responseHeader;
+
+		bool isFile(const char* path);
+		bool isDir(const char* path);	
 };
 
 std::string getRessource(const std::string &path);
