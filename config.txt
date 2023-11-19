@@ -20,7 +20,7 @@ server    [
     location   /        {
 
 
-        root /Users/chris/Desktop/webserv42/srcs/tools/website_1;
+        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools;
         index index.html index.htm;
         methods         GET POST;
         default_file        path;
@@ -30,12 +30,11 @@ server    [
 
     }
 
-    location  /test.php            {
+    location  /side_pages/            {
 
-        root   /website/html;
-        index  index.html index.htm;
+        root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/side_pages;
+        index  side_page.html index.htm;
         methods GET POST DELETE;
-        redirect            img.png;
         default_file       blabla ;
         download            on;
         download_folder     path;

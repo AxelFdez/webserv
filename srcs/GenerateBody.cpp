@@ -11,7 +11,7 @@ GenerateBody::GenerateBody(std::vector<char> binaryRequest, std::map<std::string
 	if (_method == "GET")
 		_requestBody.clear();
 	handleRequest();
-	std::cout << _method << " " << _uri << " " << _protocol << std::endl;
+	//std::cout << _method << " " << _uri << " " << _protocol << std::endl;
 }
 
 GenerateBody::~GenerateBody() {}
@@ -55,25 +55,30 @@ void GenerateBody::handleRequest()
 	}
 
 	// define root for this path in config file
-	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
-	// std::cerr << "ressource_path = " << ressource_path << std::endl;
-	_path = ressource_path + _path;
+	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0] + "/";
+	std::cerr << "ressource_path = " << ressource_path << std::endl;
+	//std::cerr << "path = " << _path << std::endl;
 
 	// check index for this path in config file
 	if (_path[_path.size() - 1] == '/')
 	{
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
+			//std::cerr << "index = " << ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i] << std::endl;
 			if (access((ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
 			{
 				_path = ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i];
 				break;
 			}
-			if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
-				_path = ressource_path + _path;
+			// if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
+			// 	_path = ressource_path + _path;
 		}
 	}
-
+	else
+	{
+		_path = ressource_path.substr(0, ressource_path.find("")) + _path;
+	}
+	std::cerr << "path = " << _path << std::endl;
 	// check directory listing for this path in config file if path is a directory
 	if (_path[_path.size() - 1] == '/')
 	{
