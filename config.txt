@@ -20,7 +20,7 @@ server    [
     location   /        {
 
 
-        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools;
+        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
         index index.html index.htm;
         methods         GET POST;
         default_file        path;
@@ -38,7 +38,7 @@ server    [
         default_file       blabla ;
         download            on;
         download_folder     path;
-        directory_listing      off;
+        directory_listing      on;
     }
 
     error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/403.html;

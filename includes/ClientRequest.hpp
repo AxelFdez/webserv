@@ -63,6 +63,8 @@ class ClientRequest
 		int							_totalServerSockets;
 		std::vector<struct pollfd>	_pollSockets;
 		std::map<int, ClientInfo>	_clients;
+
+		
 		//std::map<int, std::string>	_client;
 };
 

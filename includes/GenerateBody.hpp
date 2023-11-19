@@ -10,9 +10,6 @@ class GenerateBody
 		GenerateBody(std::vector<char> binaryRequest, std::map<std::string, std::string> request, std::string lineEnding, int serverNo, HandleConfigFile &config);
 		~GenerateBody();
 
-		void				handleRequest();
-		bool				requestErrors();
-		std::string			isolateExtension();
 		const std::string	&getBody() const;
 		const int			&getCode() const;
 		const std::string	&getPath() const;
@@ -33,6 +30,21 @@ class GenerateBody
 		std::string 	_requestBody;
 		std::string 	_responseBody;
 		std::string 	_responseHeader;
+
+
+		void		handleRequest();
+		bool		requestValid();
+		bool 		checkAuthorizedMethods();
+		bool		checkRedirection();
+		void		defineRoot();
+		bool		isPathAccess();
+		bool		checkDirectoryListing();
+		bool		deleteMethod();
+		bool		isCgiRequired(std::string extension);
+		bool		uploadAsked();
+		std::string	isolateExtension();
+		bool		isFile(const char* path);
+		bool		isDir(const char* path);
 };
 
 std::string getRessource(const std::string &path);
