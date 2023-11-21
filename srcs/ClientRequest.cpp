@@ -155,7 +155,7 @@ void ClientRequest::sendResponse()
 			// displayRequest(toDisplay, 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
-			displayRequest(response.getResponse(), 1);
+			// displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
 			while (bytesSent < response.getResponse().size())
@@ -178,19 +178,23 @@ void ClientRequest::sendResponse()
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);
 			i--;
+			response.access_logs(); // ************* TEST **********************************************************************
 		}
 	}
 }
 
 void displayRequest(const std::string  &request, int modifier)
 {
+	puts("AAAAAAAAAAA");
 	if (!modifier)
 		std::cout << "\033[0;41m-----REQUEST------" << std::endl;
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----" << std::endl;
-	std::cout << request << std::endl;
+	// std::cout << request << std::endl;
 	if (!modifier)
 		std::cout <<  "\033[0;41m-----REQUEST------\033[0m" << std::endl;
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----\033[0m" << std::endl;
 }
+
+

@@ -91,7 +91,7 @@ void GenerateBody::defineRoot()
 		// _path = ressource_path;
 		if (ressource_path[ressource_path.size() - 1] != '/')
 			ressource_path += "/";
-		std::cerr << "index = " << _config.getLocationValues(_serverNo, _path, "index")[0] << std::endl;
+		// std::cerr << "index = " << _config.getLocationValues(_serverNo, _path, "index")[0] << std::endl;
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
 			//std::cerr << "index = " << ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i] << std::endl;
