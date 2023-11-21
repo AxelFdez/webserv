@@ -112,6 +112,7 @@ void ClientRequest::acceptNewClient()
 		pfd.events = POLLIN | POLLOUT;
 		_pollSockets.push_back(pfd);
 		_clients[pfd.fd];
+		std::cout << "socket n° "  << pfd.fd << std::endl;
 		_clients[pfd.fd].setBelongOgServer(server);
 	}
 }

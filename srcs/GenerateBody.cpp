@@ -33,7 +33,7 @@ void GenerateBody::handleRequest()
 	}
 
 	defineRoot();
-
+	std::cout << _path << std::endl;
 	if (!isPathAccess())
 	{
 		return;
