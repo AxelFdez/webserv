@@ -11,7 +11,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <arpa/inet.h>
 #include "Server.hpp"
 #include "MakeResponse.hpp"
 
@@ -28,6 +28,9 @@ class ClientInfo
 		{
 			_belongOfServer = ref;
 		}
+		void setClientIP( std::string IP) { //**** TEST *******
+			_clientIP = IP;
+		}
 		std::vector<char>	getRequest()
 		{
 			return _request;
@@ -36,10 +39,14 @@ class ClientInfo
 		{
 			return _belongOfServer;
 		}
+		std::string getClientIP() { //**** TEST *******t
+			return _clientIP;
+		}
 
 	private :
 		std::vector<char> _request;
 		int			_belongOfServer;
+		std::string _clientIP; //**** TEST *******
 };
 
 class ClientRequest

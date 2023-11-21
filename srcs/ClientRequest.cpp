@@ -91,6 +91,14 @@ void ClientRequest::acceptNewClient()
 		if (_pollSockets[i].revents & POLLIN)
 		{
 			newClient = accept(_pollSockets[i].fd, (struct sockaddr *)&clientAddr, &clientLen);
+			
+			//**** TEST **********************************************************************
+			// char clientIP[INET_ADDRSTRLEN];
+    		// inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
+			// _clients[_pollSockets[i].fd].setClientIP( clientIP );
+			// std::cout << "IP = " << _clients[_pollSockets[i].fd].getClientIP() << std::endl;
+			// std::cout << "socket = " <<  _pollSockets[i].fd << std::endl;
+			//********************************************************************************
 		}
 		else
 			continue;
@@ -105,8 +113,14 @@ void ClientRequest::acceptNewClient()
 		_pollSockets.push_back(pfd);
 		_clients[pfd.fd];
 		_clients[pfd.fd].setBelongOgServer(server);
+
+		char clientIP[INET_ADDRSTRLEN];
+    	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
+		std::string ip = clientIP;
+		_clients[pfd.fd].setClientIP( ip );		//********************************************************************************
 	}
 }
+
 
 void ClientRequest::readRequest()
 {
@@ -154,6 +168,7 @@ void ClientRequest::sendResponse()
 			// std::string toDisplay = _clients[_pollSockets[i].fd].getRequest().data();
 			// displayRequest(toDisplay, 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
+			
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			// displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
@@ -174,11 +189,13 @@ void ClientRequest::sendResponse()
 				}
 				bytesSent += bytes;
 			}
+			// std::cout << "socket = " <<  _pollSockets[i].fd << std::endl;
+			
+			response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
 			close(_pollSockets[i].fd);
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);
 			i--;
-			response.access_logs(); // ************* TEST **********************************************************************
 		}
 	}
 }
