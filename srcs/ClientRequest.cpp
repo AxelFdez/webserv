@@ -1,5 +1,11 @@
 #include "../includes/ClientRequest.hpp"
 
+volatile sig_atomic_t signalReceived = 0;
+
+void signalHandler(int signal) {
+    signalReceived = 1;
+}
+
 ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets, HandleConfigFile config) : _config(config)
 {
 	_totalServerSockets = 0;
@@ -32,7 +38,9 @@ ClientRequest::~ClientRequest()
 void ClientRequest::manageRequest()
 {
 	std::cout << "Server listenning..." << std::endl;
-	while (1)
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	while (!signalReceived)
 	{
 		pollFunc();
 		listenning();
@@ -165,8 +173,6 @@ void ClientRequest::sendResponse()
 	{
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
-			// std::string toDisplay = _clients[_pollSockets[i].fd].getRequest().data();
-			// displayRequest(toDisplay, 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
 			
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
@@ -202,12 +208,11 @@ void ClientRequest::sendResponse()
 
 void displayRequest(const std::string  &request, int modifier)
 {
-	puts("AAAAAAAAAAA");
 	if (!modifier)
 		std::cout << "\033[0;41m-----REQUEST------" << std::endl;
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----" << std::endl;
-	// std::cout << request << std::endl;
+	std::cout << request << std::endl;
 	if (!modifier)
 		std::cout <<  "\033[0;41m-----REQUEST------\033[0m" << std::endl;
 	else

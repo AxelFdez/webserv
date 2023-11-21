@@ -45,8 +45,8 @@ class GenerateBody
 		std::string	isolateExtension();
 		bool		isFile(const char* path);
 		bool		isDir(const char* path);
+		std::string getRessource(const std::string &path);
+		std::string generateErrorPage(int errorCode);
+		std::string generateListingDirectoryPage(const std::string& path, const std::string& indent, bool isRoot);
 };
 
-std::string getRessource(const std::string &path);
-std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &config);
-std::string generateListingDirectoryPage(const std::string& path, const std::string& indent, bool isRoot);

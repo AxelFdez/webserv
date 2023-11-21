@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		header("Location : img.png", true, 303);
         exit();
     } else {
-        header("Location : index.php", true, 303);
+        header("Location : index.html", true, 303);
         exit();
     }
 }

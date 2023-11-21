@@ -9,7 +9,7 @@ server    [
     listen   8080;
     listen   8081;
     host    127.0.0.1;
-    #server_name chmassa/axfernand;
+    server_name localhost;
     body_size_max 1;
 
 
@@ -20,19 +20,19 @@ server    [
     location   /        {
 
 
-        root /Users/chris/Desktop/webServ42/srcs/tools/website_1;
+        root /Users/Desktop/webServ42/srcs/tools/website_1;
         index index.html index.htm;
         methods         GET POST;
         print_logs_request  on;
         download            on;
-        download_folder     /Users/chris/Desktop/webServ42/srcs/tools/depot;
-        directory_listing          on     ;
+        download_folder    /Users/Desktop/webServ42/srcs/tools/depot/;
+        directory_listing          off     ;
 
     }
 
     location  /side_pages/            {
 
-        root   /Users/chris/Desktop/webServ42/srcs/tools/side_pages;
+        root   /Users/Desktop/webServ42/srcs/tools/side_pages;
         index  side_page.html index.htm;
         methods GET POST DELETE;
         default_file       blabla ;

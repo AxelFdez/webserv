@@ -1,75 +1,5 @@
 #include "../includes/Server.hpp"
 
-
-// Server::Server(const std::string &configFile) : _config(const_cast<char *>(configFile.c_str()))
-// {
-// 	launchServer();
-// 	handleClients();
-// }
-
-// Server::~Server()
-// {
-// 	close(_socket);
-// }
-
-// void Server::createSocket()
-// {
-// 	std::cout << "Create socket..." << std::endl;
-// 	_socket = socket(AF_INET, SOCK_STREAM, 0);
-// 	if (!_socket)
-// 	{
-// 		std::cout << "error : socket not create" << std::endl;
-// 		throw std::exception();
-// 	}
-// 	std::cout << "Socket created." << std::endl;
-// 	int optval = 1;
-//     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
-//         perror("Erreur lors de la configuration de setsockopt");
-//         close(_socket);
-//         exit(EXIT_FAILURE);
-//     }
-
-//     // Définition du délai d'attente (timeout)
-//     struct timeval timeout;
-//     timeout.tv_sec = 10;  // 10 secondes
-//     timeout.tv_usec = 0;
-
-//     if (setsockopt(_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
-//         perror("Erreur lors de la configuration du délai d'attente");
-//         close(_socket);
-//         exit(EXIT_FAILURE);
-//     }
-// }
-
-// void Server::linkAddPort()
-// {
-//     std::cout << "addr = " << _config.getServerValues(0, "host").c_str() << std::endl;
-// 	_address.sin_family = AF_INET;
-// 	_address.sin_addr.s_addr = inet_addr(_config.getServerValues(0, "host").c_str()); //_config.address
-// 	_address.sin_port = htons(8080); //_config.port
-
-// 	std::cout << "link to address and port(s)..." << std::endl;
-// 	if (bind(_socket, (struct sockaddr *)&_address, sizeof(_address)) < 0)
-// 	{
-// 		std::cout << "error : bind failed" << std::endl;
-// 		throw std::exception();
-// 	}
-// 	std::cout << "Bind success." << std::endl;
-// }
-
-// void Server::launchServer()
-// {
-// 	createSocket();
-// 	linkAddPort();
-// 	// listenning();
-// }
-
-// void Server::handleClients()
-// {
-// 	ClientRequest clientRequest(_socket);
-// 	clientRequest.manageRequest();
-// }
-
 Server::Server(const std::string &configFile) : _config(const_cast<char *>(configFile.c_str()))
 {
 	launchServer();
@@ -78,10 +8,10 @@ Server::Server(const std::string &configFile) : _config(const_cast<char *>(confi
 
 Server::~Server()
 {
-	for ( size_t i = 0; i < _socket.size(); i++ ) {
-
-		for ( size_t j = 0; j < _socket[i].size(); j++ ) {
-
+	for ( size_t i = 0; i < _socket.size(); i++ )
+	{
+		for ( size_t j = 0; j < _socket[i].size(); j++ )
+		{
 			close( _socket[i][j] );
 		}
 	}
@@ -112,9 +42,8 @@ void Server::createSocket()
     		    exit(EXIT_FAILURE);
     		}
 
-    		// Définition du délai d'attente (timeout)
     		struct timeval timeout;
-    		timeout.tv_sec = 10;  // 10 secondes
+    		timeout.tv_sec = 10;
     		timeout.tv_usec = 0;
 
     		if (setsockopt(_socket[i][j], SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
@@ -124,17 +53,6 @@ void Server::createSocket()
     		}
 		}
 	}
-
-
-	// for ( size_t i = 0; i < _socket.size(); i++ ) {
-
-	// 	for ( size_t j = 0; j < _socket[i].size(); j++ ) {
-
-	// 		std::cout << "i = " << i << " j = " << j << " " << _socket[i][j] << std::endl;
-
-	// 	}
-
-	// }
 }
 
 void Server::linkAddPort()
@@ -143,14 +61,11 @@ void Server::linkAddPort()
 	for ( size_t i = 0; i < ports.size(); i++ ) {
 
 		for ( size_t j = 0; j < ports[i].size(); j++ ) {
-
-    		//std::cout << "addr = " << _config.getServerValues(i, "host").c_str() << std::endl;
 			_address.sin_family = AF_INET;
 			_address.sin_addr.s_addr = htonl(convIpToLong( _config.getServerValues(i, "host").c_str())); //_config.address
-			// _address.sin_addr.s_addr = inet_addr(_config.getServerValues(i, "host").c_str()); //_config.address
-			_address.sin_port = htons(ports[i][j]); //_config.port
+			_address.sin_port = htons(ports[i][j]);
 
-			std::cout << "link to address and port(s)..." << std::endl;
+			std::cout << "link to : " + _config.getServerValues(i, "host") + "\ndomain(" + _config.getServerValues(i, "server_name") + ")\nat port : " << ports[i][j] << std::endl;
 			if (bind(_socket[i][j], (struct sockaddr *)&_address, sizeof(_address)) < 0)
 			{
 				std::cout << "error : bind failed" << std::endl;
@@ -166,8 +81,6 @@ void Server::launchServer()
 {
 	createSocket();
 	linkAddPort();
-	// exit(0);
-	// listenning();
 }
 
 void Server::handleClients()

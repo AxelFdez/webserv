@@ -20,6 +20,7 @@
             </div>
             <button type="submit">Se connecter</button>
         </form>
+        <div class="fullscreen-image"></div>
     </div>
 </body>
 </html>
