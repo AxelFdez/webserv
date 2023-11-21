@@ -29,6 +29,9 @@ void	CGI::executeCGI()
 	}
 	else if (child == 0)
 	{
+		char buffer[1024];
+		read(stdinPipe[0], buffer, 1024);
+		std::cerr << buffer << std::endl;
 		dup2(stdinPipe[0], STDIN_FILENO);
 		close(stdinPipe[0]);
 		close(stdinPipe[1]);
@@ -50,13 +53,13 @@ void	CGI::executeCGI()
 		execve(cmd[0], cmd, env.data());
 		perror("execve");
 	}
-	std::cerr << "_requestBody = " << _requestBody << std::endl;
 	write(stdinPipe[1], _requestBody.c_str(), _requestBody.length());
 	close(stdinPipe[1]);
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
-	waitpid(child, NULL, 0);
-	if (!fillResponseFrom(stdoutPipe[0]))
+	int ret = 0;
+	waitpid(child, &ret, 0);
+	if (!fillResponseFrom(stdoutPipe[0]) && ret != 0)
 	{
 		_errorCode = 500;
 		close(stdoutPipe[0]);
@@ -68,6 +71,11 @@ void	CGI::executeCGI()
 	{
 		_cgiHeader.assign(_responseBody.begin(), _responseBody.begin() + pos);
 		_responseBody = _responseBody.assign(_responseBody.begin() + pos + 4, _responseBody.end());
+	}
+	else
+	{
+		_errorCode = 500;
+		return;
 	}
 	size_t status = _cgiHeader.find("Status: ");
 	if (status != std::string::npos)
@@ -109,8 +117,8 @@ std::vector<std::string> CGI::envCGI()
 		env.push_back("REQUEST_METHOD=" + _method);
 		if (_method == "POST")
 		{
-        	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
-        	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length()));
+        	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");// + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
+        	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
     	}
 		env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
 		if (_uri.find('?', 0) != std::string::npos && _method == "GET")
@@ -121,8 +129,8 @@ std::vector<std::string> CGI::envCGI()
 		{
 			env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 		}
-		// for(size_t i = 0; i < env.size(); i++)
-			// std::cerr << env[i] << std::endl;
+		for (size_t i = 0; i < env.size(); i++)
+			std::cerr << env[i] << std::endl;
 	return env;
 }
 

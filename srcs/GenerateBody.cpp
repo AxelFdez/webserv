@@ -27,8 +27,7 @@ void GenerateBody::handleRequest()
 	{
 		return;
 	}
-	//std::cerr << "path = " << _path << std::endl;
-	//std::cerr << "ressources =" << _config.getLocationValues(_serverNo, _path, "redirect")[0] << std::endl;
+
 	if (!checkRedirection())
 	{
 		return;
@@ -48,7 +47,6 @@ void GenerateBody::handleRequest()
 	{
 		return;
 	}
-	//std::cerr << "path = " << _path << std::endl;
 
 	std::string extension = isolateExtension();
 	if (isCgiRequired(extension))
@@ -125,6 +123,7 @@ bool GenerateBody::checkDirectoryListing()
 	}
 	return false;
 }
+
 bool GenerateBody::isPathAccess()
 {
 	if (access(_path.c_str(), F_OK) == -1)
@@ -162,6 +161,7 @@ bool GenerateBody::deleteMethod()
 	}
 	return false;
 }
+
 bool GenerateBody::isCgiRequired(std::string extension)
 {
 	if (extension == ".php" || extension == ".py")
@@ -187,14 +187,14 @@ bool GenerateBody::isCgiRequired(std::string extension)
 	}
 	return false;
 }
+
 bool GenerateBody::uploadAsked()
 {
 	if (_request["Content-Type"].find("multipart/form-data") != std::string::npos)
 	{
 		if (_method == "POST" && _config.getLocationValues(_serverNo, _path, "download")[0] == "on")
 		{
-			//std::string boundary = _request["Content-Type"].substr(_request["Content-Type"].find("boundary=") + 9);
-			if (_request["Body"].empty() || _request["Body"] == "\n" || _request["Body"] == "\r\n")
+			if (!_request["Body"][0])
 			{
 				_errorCode = 400;
 				perror("empty body");
@@ -202,38 +202,38 @@ bool GenerateBody::uploadAsked()
 				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 				return true;
 			}
-			//std::cout << "body = " << _request["Body"] << std::endl;
-			// recupere le nom du fichier et son contenu
 			std::string filename = _request["Body"].substr(_request["Body"].find("filename=") + 10);
 			filename = filename.substr(0, filename.find("\""));
-			//std::cout << "filename = " << filename << std::endl;
 			std::vector<char> binaryData;
 			char *str = strstr(_binaryRequest.data(), "\r\n\r\n") + 4;
 			str = strstr(str, "\r\n\r\n") + 4;
+			size_t sizeBody;
+			if (_request["Body"].find("Content-Type: text/plain") != std::string::npos)
+			{
+				char *end = strstr(str, "\r\n");
+				sizeBody = end - str;
+			}
+			else
+			{
+				sizeBody = _binaryRequest.size() - (str - _binaryRequest.data());
+			}
 			if (str)
 			{
-				for (size_t i = 0; i < _binaryRequest.size() - (str - _binaryRequest.data()); i++)
+				for (size_t i = 0; i < sizeBody; i++)
 				{
 					binaryData.push_back(str[i]);
 				}
 			}
-			//std::cout << "binaryData = ";
-			// for (size_t i = 0; i < binaryData.size(); i++)
-			// {
-			// 	std::cout << binaryData[i];
-			// }
-			// for (size_t i = 0; i < (_request["Body"].substr(_request["Body"].find("\r\n\r\n") + 4).size()); i++)
-			// {
-			// 	binaryData.push_back(_request["Body"].substr(_request["Body"].find("\r\n\r\n") + 4)[i]);
-			// }
-			//binaryData.assign(_request["Body"].substr(_request["Body"].find("\r\n\r\n") + 4).c_str());
-			// std::cout << "content = " << content << std::endl;
-			// check destination download folder, cree et ecrit dans le fichier
 			if (!_config.getLocationValues(_serverNo, _path, "download_folder")[0].empty() \
 				&& access(_config.getLocationValues(_serverNo, _path, "download_folder")[0].c_str(), F_OK) == 0 \
-				&& access(_config.getLocationValues(_serverNo, _path, "download_folder")[0].c_str(), W_OK) == 0)
+				&& access(_config.getLocationValues(_serverNo, _path, "download_folder")[0].c_str(), W_OK) == 0 \
+				&& isDir(_config.getLocationValues(_serverNo, _path, "download_folder")[0].c_str()))
 			{
-				std::ofstream file(_config.getLocationValues(_serverNo, _path, "download_folder")[0] + "/" + filename, std::ios::binary);
+				std::ofstream file;
+				if (_config.getLocationValues(_serverNo, _path, "download_folder")[0][_config.getLocationValues(_serverNo, _path, "download_folder")[0].size() - 1] != '/')
+					file.open(_config.getLocationValues(_serverNo, _path, "download_folder")[0] + "/" + filename, std::ios::binary);
+				else
+					file.open(_config.getLocationValues(_serverNo, _path, "download_folder")[0] + filename, std::ios::binary);
 				if (file.is_open())
 				{
 					for (size_t i = 0; i < binaryData.size(); i++)
@@ -241,6 +241,13 @@ bool GenerateBody::uploadAsked()
 						file << binaryData[i];
 					}
 					file.close();
+				}
+				else
+				{
+					_errorCode = 500;
+					_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+					_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+					return true;
 				}
 			}
 			else
@@ -352,7 +359,7 @@ std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &con
 	html << "<head>\n";
 	html << "<meta charset=\"UTF-8\">\n";
 	html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-	html << "<title>Error " << errorCode << "</title>\n";
+	html << "<title>Code " << errorCode << "</title>\n";
 	html << "<style>\n";
 	html << "html { color-scheme: light dark; }";
 	html << "body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n";
@@ -360,7 +367,7 @@ std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &con
 	html << "</style>\n";
 	html << "</head>\n";
 	html << "<body>\n";
-	html << "<h1>Error " << errorCode << "</h1>\n";
+	html << "<h1>Code " << errorCode << "</h1>\n";
 	html << "<h2>" << errorMessage.getMessage(errorCode) << "</h2>\n";
 	html << "<p>" << "webserv/chmassa-axfernan" << "</p>\n";
 	html << "</body>\n";

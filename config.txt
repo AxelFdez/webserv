@@ -25,7 +25,7 @@ server    [
         methods         GET POST;
         default_file        path;
         download            on;
-        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/depot;
+        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/depot/;
         directory_listing          on     ;
 
     }

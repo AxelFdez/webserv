@@ -151,10 +151,7 @@ void ClientRequest::sendResponse()
 	{
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
-			// std::string toDisplay = _clients[_pollSockets[i].fd].getRequest().data();
-			// displayRequest(toDisplay, 0);
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
