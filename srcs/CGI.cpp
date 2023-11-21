@@ -29,9 +29,6 @@ void	CGI::executeCGI()
 	}
 	else if (child == 0)
 	{
-		char buffer[1024];
-		read(stdinPipe[0], buffer, 1024);
-		std::cerr << buffer << std::endl;
 		dup2(stdinPipe[0], STDIN_FILENO);
 		close(stdinPipe[0]);
 		close(stdinPipe[1]);
@@ -42,7 +39,7 @@ void	CGI::executeCGI()
 		char *cmd[2];
 		if (_extension == ".php")
 			cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
-		else if (_extension == ".py")
+		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
 		std::vector<char*> env;
@@ -129,8 +126,6 @@ std::vector<std::string> CGI::envCGI()
 		{
 			env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 		}
-		for (size_t i = 0; i < env.size(); i++)
-			std::cerr << env[i] << std::endl;
 	return env;
 }
 

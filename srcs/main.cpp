@@ -11,35 +11,16 @@ int main (int argc, char **argv)
 		configFile = "file_to_default_conf";
 	else
 		configFile = argv[1];
+	Server *server;
 	try
 	{
-		// std::cout << getHtmlPage("/Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/index.html");
-		// exit(1);
-		Server server(configFile);
+		server = new Server(configFile);
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 	}
-
-
+	delete server;
+	//system("leaks webserv");
 	return (0);
 }
-
-
-
-
-
-/*
-
--- parsing du fichier et recupération des variables pour la création du network ==> class ConfigFile(argv[1])
--- creation du socket ==> class serverSocket()
--- mis en place de la boucle d'ecoute => poll()
--- parsing de la requete du navigateur
--- creation de la reponse + envoi
-
-
--- signal() pour exit le server
-
-
-*/

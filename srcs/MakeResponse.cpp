@@ -18,6 +18,7 @@ void	MakeResponse::handleRequest()
 {
 	mappedRequest();
 	generateResponse();
+	// access_logs();
 	//displayMappedRequest();
 }
 
@@ -76,3 +77,76 @@ std::string	detectLineEnding(const std::string& request)
 		return "\n";
 	return "";
 }
+
+void MakeResponse::access_logs() {
+
+	std::map<std::string, std::string> map;
+	request_response_to_map( map, _request, "Request:" );
+	request_response_to_map( map, _responseHeader, "Response-Code:" );
+
+	// for ( std::map<std::string, std::string>::iterator it = map.begin(); it != map.end(); it++ ) {
+	// 	std::cerr << it->first << " " << it->second << std::endl;
+	// }
+	// std::cerr << std::endl;
+
+	std::string token[7] = { "Host:", "Date:", "Request:", "Response-Code:", "Content-Length:", "Referer:", "User-Agent:" };
+	std::map<std::string, std::string>::iterator it;
+
+	std::ostringstream out;
+	for ( size_t i = 0; i < 7; i++ ) {
+
+		it = map.find( token[i] );
+		if ( it != map.end() )
+			out << it->second << std::endl;
+		else
+			out << "-" << std::endl;
+	}
+	std::cerr << out.str() << std::endl;
+
+}
+
+void request_response_to_map( std::map<std::string, std::string> & map, std::string toMap, std::string type ) {
+
+	std::vector<std::string> vec;
+	std::string line;
+	for (std::string::const_iterator it = toMap.begin(); it != toMap.end(); ++it) {
+
+		char c = *it;
+        if (c == '\n') {
+            vec.push_back(line);
+            line.clear();
+        }
+		else {
+            line.push_back(c);
+        }
+    }
+    if (!line.empty()) {
+        vec.push_back(line);
+    }
+	std::vector<std::string>::iterator it = vec.begin();
+	map.insert(std::pair<std::string, std::string>( type, *it++ ));
+	for ( ; it != vec.end(); it++ ) {
+
+		if ( (*it).find(':') ) {
+
+			std::string key = (*it).substr(0, (*it).find_first_of(':') +1 );
+			std::string value = (*it).substr((*it).find_first_of(':') +2 );
+			if ( key == "Host:" ) {
+				if ( value.find(':') != std::string::npos ) {
+					value = value.substr( 0, value.find(':') );
+				}
+			}
+			map.insert(std::pair<std::string, std::string>( key, value ) );
+		}
+	}
+	std::map<std::string, std::string>::iterator itMap = map.find( "Response-Code:" );
+	if ( itMap != map.end() ) {
+		if ( itMap->second.find(' ') != std::string::npos ) {
+
+			itMap->second = itMap->second.substr( itMap->second.find(' '));
+		}
+		std::istringstream iss(itMap->second);
+		iss >> itMap->second;
+	}
+}
+

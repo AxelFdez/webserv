@@ -11,7 +11,6 @@ GenerateBody::GenerateBody(std::vector<char> binaryRequest, std::map<std::string
 	if (_method == "GET")
 		_requestBody.clear();
 	handleRequest();
-	//std::cout << _method << " " << _uri << " " << _protocol << std::endl;
 }
 
 GenerateBody::~GenerateBody() {}
@@ -58,7 +57,6 @@ void GenerateBody::handleRequest()
 	{
 		return;
 	}
-
 	_responseBody = getRessource(_path);
 	_errorCode = 200;
 }
@@ -69,7 +67,7 @@ bool GenerateBody::checkRedirection()
 		&& _path != "/" + _config.getLocationValues(_serverNo, _path, "redirect")[0])
 	{
 		_errorCode = 301;
-		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+		_responseBody = generateErrorPage(_errorCode);
 		_responseHeader = "Location: " + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + std::to_string(_responseBody.size());
 		return false;
 	}
@@ -89,7 +87,7 @@ void GenerateBody::defineRoot()
 		// _path = ressource_path;
 		if (ressource_path[ressource_path.size() - 1] != '/')
 			ressource_path += "/";
-		std::cerr << "index = " << _config.getLocationValues(_serverNo, _path, "index")[0] << std::endl;
+		// std::cerr << "index = " << _config.getLocationValues(_serverNo, _path, "index")[0] << std::endl;
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
 			//std::cerr << "index = " << ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i] << std::endl;
@@ -129,7 +127,7 @@ bool GenerateBody::isPathAccess()
 	if (access(_path.c_str(), F_OK) == -1)
 	{
 		_errorCode = 404;
-		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+		_responseBody = generateErrorPage(_errorCode);
 		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 		return false;
 	}
@@ -137,7 +135,7 @@ bool GenerateBody::isPathAccess()
 	{
 
 		_errorCode = 403;
-		_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+		_responseBody = generateErrorPage(_errorCode);
 		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 		return false;
 	}
@@ -152,7 +150,7 @@ bool GenerateBody::deleteMethod()
 		{
 			perror( "Error deleting file" );
 			_errorCode = 403;
-			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
@@ -169,7 +167,7 @@ bool GenerateBody::isCgiRequired(std::string extension)
 		if (_method != "GET" && _method != "POST")
 		{
 			_errorCode = 405;
-			_responseBody = generateErrorPage(405, _serverNo, _config);
+			_responseBody = generateErrorPage(405);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
@@ -177,7 +175,7 @@ bool GenerateBody::isCgiRequired(std::string extension)
 		_errorCode = cgi.getErrorCode();
 		if (_errorCode >= 500)
 		{
-			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
@@ -198,7 +196,7 @@ bool GenerateBody::uploadAsked()
 			{
 				_errorCode = 400;
 				perror("empty body");
-				_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+				_responseBody = generateErrorPage(_errorCode);
 				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 				return true;
 			}
@@ -245,7 +243,7 @@ bool GenerateBody::uploadAsked()
 				else
 				{
 					_errorCode = 500;
-					_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+					_responseBody = generateErrorPage(_errorCode);
 					_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 					return true;
 				}
@@ -253,19 +251,19 @@ bool GenerateBody::uploadAsked()
 			else
 			{
 				_errorCode = 403;
-				_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+				_responseBody = generateErrorPage(_errorCode);
 				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 				return true;
 			}
 			_errorCode = 201;
-			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
 		else
 		{
 			_errorCode = 403;
-			_responseBody = generateErrorPage(_errorCode, _serverNo, _config);
+			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
@@ -279,20 +277,20 @@ bool	GenerateBody::requestValid()
 		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/' && _requestHost.empty())
 	{
 		_errorCode = 400;
-		_responseBody = generateErrorPage(400, _serverNo, _config);
+		_responseBody = generateErrorPage(400);
 		return false;
 	}
 	else if (_requestHost != _config.getServerValues(_serverNo, "host") \
 		&& _requestHost != _config.getServerValues(_serverNo, "server_name"))
 	{
 		_errorCode = 404;
-		_responseBody = generateErrorPage(404, _serverNo, _config);
+		_responseBody = generateErrorPage(404);
 		return false;
 	}
 	else if (_requestBody.size() > static_cast<size_t>(_config.getBodySizeMax(_serverNo)))
 	{
 		_errorCode = 413;
-		_responseBody = generateErrorPage(413, _serverNo, _config);
+		_responseBody = generateErrorPage(413);
 		return false;
 	}
 	return true;
@@ -330,7 +328,7 @@ const std::string	&GenerateBody::getResponseHeader() const
 	return _responseHeader;
 }
 
-std::string getRessource(const std::string &path)
+std::string GenerateBody::getRessource(const std::string &path)
 {
 	std::ifstream ifs(path.c_str(), std::ios::binary);
     if (!ifs)
@@ -341,10 +339,10 @@ std::string getRessource(const std::string &path)
     return oss.str();
 }
 
-std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &config)
+std::string GenerateBody::generateErrorPage(int errorCode)
 {
 
-	std::string path = config.getErrorPage(serverNo, errorCode);
+	std::string path = _config.getErrorPage(_serverNo, errorCode);
 	if (!path.empty())
 	{
 		std::string extension = path.substr(path.find_last_of("."));
@@ -375,7 +373,7 @@ std::string generateErrorPage(int errorCode, int serverNo, HandleConfigFile &con
 	return html.str();
 }
 
-std::string generateListingDirectoryPage(const std::string& path, const std::string& indent = "", bool isRoot = true)
+std::string GenerateBody::generateListingDirectoryPage(const std::string& path, const std::string& indent = "", bool isRoot = true)
 {
 	DIR *dir;
 	struct dirent *entry;
@@ -444,7 +442,7 @@ bool GenerateBody::checkAuthorizedMethods()
 		if (i == _config.getLocationValues(_serverNo, _path, "methods").size() - 1)
 		{
 			_errorCode = 405;
-			_responseBody = generateErrorPage(405, _serverNo, _config);
+			_responseBody = generateErrorPage(405);
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return false;
 		}

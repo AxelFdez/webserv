@@ -1,5 +1,11 @@
 #include "../includes/ClientRequest.hpp"
 
+volatile sig_atomic_t signalReceived = 0;
+
+void signalHandler(int signal) {
+    signalReceived = 1;
+}
+
 ClientRequest::ClientRequest(std::vector<std::vector<int> > serverSockets, HandleConfigFile config) : _config(config)
 {
 	_totalServerSockets = 0;
@@ -32,7 +38,9 @@ ClientRequest::~ClientRequest()
 void ClientRequest::manageRequest()
 {
 	std::cout << "Server listenning..." << std::endl;
-	while (1)
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+	while (!signalReceived)
 	{
 		pollFunc();
 		listenning();
@@ -152,6 +160,7 @@ void ClientRequest::sendResponse()
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
+			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
@@ -175,6 +184,7 @@ void ClientRequest::sendResponse()
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);
 			i--;
+			//response.access_logs(); // ************* TEST **********************************************************************
 		}
 	}
 }
@@ -191,3 +201,5 @@ void displayRequest(const std::string  &request, int modifier)
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----\033[0m" << std::endl;
 }
+
+

@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-// Vérifier si le jeton de session correspond au jeton du cookie
-if (!isset($_SESSION['token']) || $_SESSION['token'] !== $_COOKIE['token']) {
-    exit('Accès non autorisé');
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: login.php");
+    exit;
 }
 
-// Afficher l'image
 echo '<img src="img.png" alt="Image Protégée">';
+?>

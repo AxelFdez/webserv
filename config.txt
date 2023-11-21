@@ -23,7 +23,7 @@ server    [
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
         index index.html index.htm;
         methods         GET POST;
-        default_file        path;
+        print_logs_request  on;
         download            on;
         download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/depot/;
         directory_listing          on     ;
@@ -41,12 +41,12 @@ server    [
         directory_listing      on;
     }
 
-    error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/403.html;
-    error_404              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/404.html;
-    error_500              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/500.html;
-    error_502              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/502.html;
-    error_503              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/503.html;
-    error_504              /Users/chris/Desktop/webserv42/srcs/tools/website_1/errorPages/504.html;
+    error_403              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/403.html;
+    error_404              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/404.html;
+    error_500              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/500.html;
+    error_502              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/502.html;
+    error_503              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/503.html;
+    error_504              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/504.html;
 
 ]
 
@@ -64,7 +64,7 @@ server [
 
     location / {
 
-        root   /Users/chris/Desktop/webserv42/srcs/tools/website_2;
+        root   /Users/chris/Desktop/webServ42/srcs/tools/website_2;
         index index.html index.htm;
 
         methods    GET POST DELETE;
@@ -92,12 +92,12 @@ server [
 
     }
 
-    error_403              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/403.html;
-    error_404              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/404.html;
-    error_500              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/500.html;
-    error_502              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/502.html;
-    error_503              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/503.html;
-    error_504              /Users/chris/Desktop/webserv42/srcs/tools/website_2/errorPages/504.html;
+    error_403              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/403.html;
+    error_404              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/404.html;
+    error_500              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/500.html;
+    error_502              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/502.html;
+    error_503              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/503.html;
+    error_504              /Users/chris/Desktop/webServ42/srcs/tools/website_2/errorPages/504.html;
 
 
 ]

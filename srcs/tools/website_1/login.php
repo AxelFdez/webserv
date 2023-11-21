@@ -1,20 +1,19 @@
 <?php
 session_start();
 
-if (isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
 
-    // Ici, vérifiez les identifiants (exemple simplifié)
-    if ($username == "user" && $password == "password") {
-        // Génération et stockage du jeton
-        $_SESSION['token'] = bin2hex(random_bytes(32));
-        setcookie("token", $_SESSION['token'], time() + 3600);
-
-        header("Location: protected_page.php"); // Rediriger vers la page protégée
-        exit;
-    } else {
-        echo "Identifiants incorrects.";
+        // Remplacer ceci par votre logique d'authentification
+        if ($username == "user" && $password == "password") {
+            $_SESSION['logged_in'] = true;
+            header("Location: protected_page.php");
+            exit;
+        } else {
+            echo "Identifiants incorrects.";
+        }
     }
 }
 ?>

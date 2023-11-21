@@ -69,8 +69,9 @@ std::string getContentType(const std::string& filePath)
     contentTypes[".jpg"] = "image/jpeg";
     contentTypes[".jpeg"] = "image/jpeg";
     contentTypes[".gif"] = "image/gif";
-    contentTypes[".php"] = "text/html";
-	contentTypes[".py"] = "text/html;";
+    contentTypes[".php"] = "text/html; charset=UTF-8";
+	contentTypes[".py"] = "text/html; charset=UTF-8";
+	contentTypes[".sh"] = "text/html; charset=UTF-8";
 
     std::size_t lastIndex = filePath.find_last_of(".");
     if (lastIndex != std::string::npos) {
