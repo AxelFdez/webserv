@@ -18,7 +18,7 @@ class MakeResponse
 		void		displayMappedRequest();
 		void		generateResponse();
 
-		void access_logs();
+		void access_logs( std::string IP );
 	private :
 		HandleConfigFile _config;
 		std::string	_request;
