@@ -23,7 +23,7 @@ server    [
         root /Users/chris/Desktop/webServ42/srcs/tools/website_1;
         index index.html index.htm;
         methods         GET POST;
-        print_logs_request  on;
+       
         download            on;
         download_folder     /Users/chris/Desktop/webServ42/srcs/tools/depot;
         directory_listing          on     ;
