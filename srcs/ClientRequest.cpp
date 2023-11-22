@@ -120,13 +120,12 @@ void ClientRequest::acceptNewClient()
 		pfd.events = POLLIN | POLLOUT;
 		_pollSockets.push_back(pfd);
 		_clients[pfd.fd];
-		std::cout << "socket n° "  << pfd.fd << std::endl;
 		_clients[pfd.fd].setBelongOgServer(server);
 
 		char clientIP[INET_ADDRSTRLEN];
     	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
-		std::string ip = clientIP;
-		_clients[pfd.fd].setClientIP( ip );		//********************************************************************************
+		std::string ip(clientIP);
+		_clients[pfd.fd].setClientIP( ip );
 	}
 }
 
@@ -196,9 +195,8 @@ void ClientRequest::sendResponse()
 				}
 				bytesSent += bytes;
 			}
-			// std::cout << "socket = " <<  _pollSockets[i].fd << std::endl;
-
-			response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
+		
+			response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); 
 			close(_pollSockets[i].fd);
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);

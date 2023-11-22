@@ -4,7 +4,7 @@ GenerateBody::GenerateBody(std::vector<char> binaryRequest, std::map<std::string
 {
 	_requestBody = request["Body"];
 	_requestHost = request["Host"].substr(0, request["Host"].find(':'));
-	std::istringstream split(request["RequestLine"]);
+	std::istringstream split(request["Request"]);
 	getline(split, _method, ' ');
 	getline(split, _uri, ' ');
 	getline(split, _protocol, _lineEnding[0]);
