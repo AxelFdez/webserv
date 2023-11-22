@@ -9,7 +9,7 @@ server    [
     listen   8080;
     listen   8081;
     host    127.0.0.1;
-    #server_name chmassa/axfernand;
+    server_name chmassa/axfernand;
     body_size_max 1;
 
 

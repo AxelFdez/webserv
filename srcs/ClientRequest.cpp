@@ -99,7 +99,7 @@ void ClientRequest::acceptNewClient()
 		if (_pollSockets[i].revents & POLLIN)
 		{
 			newClient = accept(_pollSockets[i].fd, (struct sockaddr *)&clientAddr, &clientLen);
-			
+
 			//**** TEST **********************************************************************
 			// char clientIP[INET_ADDRSTRLEN];
     		// inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
@@ -120,6 +120,7 @@ void ClientRequest::acceptNewClient()
 		pfd.events = POLLIN | POLLOUT;
 		_pollSockets.push_back(pfd);
 		_clients[pfd.fd];
+		std::cout << "socket n° "  << pfd.fd << std::endl;
 		_clients[pfd.fd].setBelongOgServer(server);
 
 		char clientIP[INET_ADDRSTRLEN];
@@ -174,8 +175,8 @@ void ClientRequest::sendResponse()
 		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
 		{
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			
-			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
+
+			// MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			// displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
@@ -196,7 +197,7 @@ void ClientRequest::sendResponse()
 				bytesSent += bytes;
 			}
 			// std::cout << "socket = " <<  _pollSockets[i].fd << std::endl;
-			
+
 			response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
 			close(_pollSockets[i].fd);
 			_clients.erase(_pollSockets[i].fd);

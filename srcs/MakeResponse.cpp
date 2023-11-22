@@ -100,9 +100,9 @@ void MakeResponse::access_logs( std::string IP ) {
 
 	// std::ostringstream out;
 	for ( size_t i = 0; i < 9; i++ ) {
-		
+
 		it = map.find( token[i] );
-		if ( it != map.end() ) 
+		if ( it != map.end() )
 			std::cerr << B_GRAY << it->first << " " << B_GREEN << it->second << RESET << std::endl;
 		else
 			std::cerr << B_GRAY << token[i] << " " << "-" << RESET << std::endl;
@@ -112,7 +112,7 @@ void MakeResponse::access_logs( std::string IP ) {
 }
 void request_response_to_map( std::map<std::string, std::string> & map, std::string toMap, std::string type ) {
 
-	
+
 	std::vector<std::string> vec;
 	std::string line;
 	for (std::string::const_iterator it = toMap.begin(); it != toMap.end(); ++it) {
@@ -160,11 +160,11 @@ void request_response_to_map( std::map<std::string, std::string> & map, std::str
 // 	std::vector<std::string> vec;
 // 	std::string line;
 // 	for (std::string::const_iterator it = toMap.begin(); it != toMap.end(); ++it) {
-        
+
 // 		char c = *it;
 //         if (c == '\n') {
 //             vec.push_back(line);
-//             line.clear(); 
+//             line.clear();
 //         }
 // 		else {
 //             line.push_back(c);
