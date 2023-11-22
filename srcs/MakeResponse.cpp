@@ -5,11 +5,9 @@ MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, Handle
 	for (int i = 0; i < binaryRequest.size(); i++)
 		_request.push_back(binaryRequest[i]);
 	_request.push_back('\0');
-	// displayRequest(_request, 0);
+	//displayRequest(_request, 0);
 	_lineEnding = detectLineEnding(_request);
 	handleRequest();
-	// std::cout << "REQUEST : " << _request << std::endl;
-	//std::cout << "NEW REQUEST\n" << std::endl;
 }
 
 MakeResponse::~MakeResponse() {}
@@ -18,8 +16,7 @@ void	MakeResponse::handleRequest()
 {
 	mappedRequest();
 	generateResponse();
-	// access_logs();
-	// displayMappedRequest();
+	//displayMappedRequest();
 }
 
 void	MakeResponse::mappedRequest()
@@ -87,7 +84,7 @@ void MakeResponse::access_logs( std::string IP ) {
 	if ( !serverName.empty() ) {
 		map["Server-Name:"] = _config.getServerValues( _serverNo, "server_name" );
 	}
-	std::string token[9] = { "IP:", "Host:", "Server-Name:", "Date:", "Request:", "Response-Code:", "Content-Length:", "Referer:", "User-Agent:" }; 
+	std::string token[9] = { "IP:", "Host:", "Server-Name:", "Date:", "Request:", "Response-Code:", "Content-Length:", "Referer:", "User-Agent:" };
 	std::map<std::string, std::string>::iterator it;
 
 	for ( size_t i = 0; i < 9; i++ ) {

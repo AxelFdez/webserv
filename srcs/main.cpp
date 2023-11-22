@@ -11,16 +11,24 @@ int main (int argc, char **argv)
 		configFile = "file_to_default_conf";
 	else
 		configFile = argv[1];
-	Server *server;
+	//Server *server;
 	try
 	{
-		server = new Server(configFile);
+		Server server(configFile);
 	}
+	// catch(const std::invalid_argument& e)
+	// {
+	// 	std::cerr << e.what() << '\n';
+	// 	//system("lsof -c webserv");
+	// 	return (1);
+	// }
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
+		return (1);
 	}
-	delete server;
+	//delete server;
 	//system("leaks webserv");
+	//system("lsof -c webserv");
 	return (0);
 }

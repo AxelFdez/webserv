@@ -40,7 +40,6 @@ class HandleConfigFile : public getConfigFile {
         long long                                         getBodySizeMax(size_t serverNb) const;
         std::string const getErrorPage( size_t serverNb, int errorCode );
 
-
     private:
         // Copy & Affectation
         // HandleConfigFile( HandleConfigFile const& src );

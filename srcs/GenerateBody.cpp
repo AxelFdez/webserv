@@ -33,8 +33,7 @@ void GenerateBody::handleRequest()
 	}
 
 	defineRoot();
-	// std::cout << _path << std::endl;
-
+	std::cout << "_path = "<< _path << std::endl;
 	if (!isPathAccess())
 	{
 		return;
@@ -77,21 +76,27 @@ bool GenerateBody::checkRedirection()
 
 void GenerateBody::defineRoot()
 {
-	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0] + _path.substr(_path.find_last_of("/"));
-	//std::string checkPath = ressource_path + _path.substr(_path.find_last_of("/"));
+	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
+	//std::cout << "path = " << _path << std::endl;
+	//std::cout << "ressource_path = " << ressource_path << std::endl;
+	size_t pos = ressource_path.find(_path);
+	//std::cout << "pos = " << pos << std::endl;
+	if (pos != std::string::npos)
+		ressource_path.replace(pos, _path.length(), _path);
+	else
+		ressource_path += _path;
 	if (isFile(ressource_path.c_str()))
 	{
 		_path = ressource_path;
 	}
 	else if (isDir(ressource_path.c_str()))
 	{
-		// _path = ressource_path;
 		if (ressource_path[ressource_path.size() - 1] != '/')
 			ressource_path += "/";
-		// std::cerr << "index = " << _config.getLocationValues(_serverNo, _path, "index")[0] << std::endl;
+		if (_config.getLocationValues(_serverNo, _path, "index").size() == 0)
+			_path = ressource_path;
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
-			//std::cerr << "index = " << ressource_path + "/" + _config.getLocationValues(_serverNo, _path, "index")[i] << std::endl;
 			if (access((ressource_path +_config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
 			{
 				if (_config.getLocationValues(_serverNo, _path, "index")[i][0] == '/')
@@ -196,7 +201,7 @@ bool GenerateBody::uploadAsked()
 			if (!_request["Body"][0])
 			{
 				_errorCode = 400;
-				perror("empty body");
+				std::cout << ("empty body") << std::endl;
 				_responseBody = generateErrorPage(_errorCode);
 				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 				return true;
