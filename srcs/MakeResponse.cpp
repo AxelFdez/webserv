@@ -5,7 +5,7 @@ MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, Handle
 	for (int i = 0; i < binaryRequest.size(); i++)
 		_request.push_back(binaryRequest[i]);
 	_request.push_back('\0');
-	displayRequest(_request, 0);
+	//displayRequest(_request, 0);
 	_lineEnding = detectLineEnding(_request);
 	handleRequest();
 	// std::cout << "REQUEST : " << _request << std::endl;
@@ -19,7 +19,7 @@ void	MakeResponse::handleRequest()
 	mappedRequest();
 	generateResponse();
 	// access_logs();
-	displayMappedRequest();
+	//displayMappedRequest();
 }
 
 void	MakeResponse::mappedRequest()
@@ -99,14 +99,14 @@ void MakeResponse::access_logs( std::string IP ) {
 	std::map<std::string, std::string>::iterator it;
 
 	// std::ostringstream out;
-	for ( size_t i = 0; i < 9; i++ ) {
+	// for ( size_t i = 0; i < 9; i++ ) {
 
-		it = map.find( token[i] );
-		if ( it != map.end() )
-			std::cerr << B_GRAY << it->first << " " << B_GREEN << it->second << RESET << std::endl;
-		else
-			std::cerr << B_GRAY << token[i] << " " << "-" << RESET << std::endl;
-	}
+	// 	it = map.find( token[i] );
+	// 	if ( it != map.end() )
+	// 		std::cerr << B_GRAY << it->first << " " << B_GREEN << it->second << RESET << std::endl;
+	// 	else
+	// 		std::cerr << B_GRAY << token[i] << " " << "-" << RESET << std::endl;
+	// }
 	// std::cerr << B_GREEN << out.str() << RESET << std::endl;
 
 }

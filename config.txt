@@ -9,7 +9,7 @@ server    [
     listen   8080;
     listen   8081;
     host    127.0.0.1;
-    #server_name chmassa/axfernand;
+    server_name localhost;
     body_size_max 1;
 
 
@@ -21,11 +21,10 @@ server    [
 
 
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
-        index index.html index.htm;
         methods         GET POST;
         print_logs_request  on;
         download            on;
-        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/depot/;
+        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/depot;
         directory_listing          on     ;
 
     }
@@ -35,7 +34,6 @@ server    [
         root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/side_pages;
         index  side_page.html index.htm;
         methods GET POST DELETE;
-        default_file       blabla ;
         download            on;
         download_folder     path;
         directory_listing      on;
@@ -56,15 +54,14 @@ server [
 
     listen                   8082;
     listen                   8090;
-    listen                   8095;
-    listen                   8083;
+    listen                   8080;
     host                127.0.0.1;
     server_name           chmassa.42.fr;
     body_size_max               8;
 
     location / {
 
-        root   /Users/chris/Desktop/webServ42/srcs/tools/website_2;
+        root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_2;
         index index.html index.htm;
 
         methods    GET POST DELETE;

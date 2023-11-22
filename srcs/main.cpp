@@ -16,11 +16,18 @@ int main (int argc, char **argv)
 	{
 		server = new Server(configFile);
 	}
+	catch(const std::invalid_argument& e)
+	{
+		std::cerr << e.what() << '\n';
+		system("lsof -c webserv");
+		return (1);
+	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 	}
 	delete server;
 	//system("leaks webserv");
+	system("lsof -c webserv");
 	return (0);
 }
