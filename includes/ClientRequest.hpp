@@ -28,7 +28,7 @@ class ClientInfo
 		{
 			_belongOfServer = ref;
 		}
-		void setClientIP( std::string IP) { //**** TEST *******
+		void setClientIP( std::string IP) {
 			_clientIP = IP;
 		}
 		std::vector<char>	getRequest()
@@ -39,14 +39,14 @@ class ClientInfo
 		{
 			return _belongOfServer;
 		}
-		std::string getClientIP() { //**** TEST *******t
+		std::string getClientIP() {
 			return _clientIP;
 		}
 
 	private :
-		std::vector<char> _request;
-		int			_belongOfServer;
-		std::string _clientIP; //**** TEST *******
+		std::vector<char>	_request;
+		int					_belongOfServer;
+		std::string 		_clientIP;
 };
 
 class ClientRequest

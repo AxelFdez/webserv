@@ -124,8 +124,8 @@ void ClientRequest::acceptNewClient()
 
 		char clientIP[INET_ADDRSTRLEN];
     	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
-		std::string ip = clientIP;
-		_clients[pfd.fd].setClientIP( ip );		//********************************************************************************
+		std::string ip(clientIP);
+		_clients[pfd.fd].setClientIP( ip );
 	}
 }
 
@@ -199,7 +199,8 @@ void ClientRequest::sendResponse()
 				}
 				bytesSent += bytes;
 			}
-			//response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
+
+			response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			close(_pollSockets[i].fd);
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);

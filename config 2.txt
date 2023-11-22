@@ -9,11 +9,7 @@ server    [
     listen   8080;
     listen   8081;
     host    127.0.0.1;
-<<<<<<< HEAD
-    server_name localhost;
-=======
     server_name chmassa/axfernand;
->>>>>>> origin/chris
     body_size_max 1;
 
 
@@ -24,20 +20,12 @@ server    [
     location   /        {
 
 
-<<<<<<< HEAD
-        root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
-        methods         GET POST;
-        print_logs_request  on;
-        download            on;
-        download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/depot;
-=======
         root /Users/chris/Desktop/webServ42/srcs/tools/website_1;
         index index.html index.htm;
         methods         GET POST;
         print_logs_request  on;
         download            on;
         download_folder     /Users/chris/Desktop/webServ42/srcs/tools/depot;
->>>>>>> origin/chris
         directory_listing          on     ;
 
     }
@@ -47,6 +35,7 @@ server    [
         root   /Users/chris/Desktop/webServ42/srcs/tools/side_pages;
         index  side_page.html index.htm;
         methods GET POST DELETE;
+        default_file       blabla ;
         download            on;
         download_folder     path;
         directory_listing      on;
@@ -67,25 +56,28 @@ server [
 
     listen                   8082;
     listen                   8090;
-    listen                   8080;
+    listen                   8095;
+    listen                   8083;
     host                127.0.0.1;
-    server_name           axfernan;
+    server_name           chmassa.42.fr;
     body_size_max               8;
 
     location / {
 
-        root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_2;
+        root   /Users/chris/Desktop/webServ42/srcs/tools/website_2;
         index index.html index.htm;
 
         methods    GET POST DELETE;
 
+        redirect              path;
+        default_file          path;
         download                on;
         download_folder       path;
         directory_listing      off;
 
     }
 
-    location = /etc {
+    location = ./etc {
 
         root   /website/html;
         index  index.html index.htm;

@@ -29,8 +29,8 @@ class MakeResponse
 		std::string 	_responseHeader;
 		std::string		_responseBody;
 		std::string		_lineEnding;
+		void getLogsInfoToMap( std::map<std::string, std::string> & map);
 
 };
 
 std::string	detectLineEnding(const std::string&);
-void request_response_to_map( std::map<std::string, std::string> & map, std::string toMap, std::string type );
