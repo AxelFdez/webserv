@@ -8,8 +8,6 @@ MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, Handle
 	//displayRequest(_request, 0);
 	_lineEnding = detectLineEnding(_request);
 	handleRequest();
-	// std::cout << "REQUEST : " << _request << std::endl;
-	//std::cout << "NEW REQUEST\n" << std::endl;
 }
 
 MakeResponse::~MakeResponse() {}
@@ -18,7 +16,6 @@ void	MakeResponse::handleRequest()
 {
 	mappedRequest();
 	generateResponse();
-	// access_logs();
 	//displayMappedRequest();
 }
 
@@ -82,6 +79,7 @@ void MakeResponse::access_logs( std::string IP ) {
 
 	std::map<std::string, std::string> map;
 	map["IP:"] = IP;
+	std::cout << "_responseHeader: " << _responseHeader << std::endl;
 	request_response_to_map( map, _request, "Request:" );
 	request_response_to_map( map, _responseHeader, "Response-Code:" );
 	std::string serverName = _config.getServerValues( _serverNo, "server_name" );

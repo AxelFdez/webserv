@@ -37,9 +37,9 @@ void Server::createSocket()
 			std::cout << "Socket created." << std::endl;
 			int optval = 1;
     		if (setsockopt(_socket[i][j], SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
-    		    perror("Erreur lors de la configuration de setsockopt");
+    		    perror("setsockopt error");
     		    close(_socket[i][j]);
-    		    exit(EXIT_FAILURE);
+    		    throw std::exception();
     		}
 
     		struct timeval timeout;
@@ -47,9 +47,9 @@ void Server::createSocket()
     		timeout.tv_usec = 0;
 
     		if (setsockopt(_socket[i][j], SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
-    		    perror("Erreur lors de la configuration du délai d'attente");
+    		    perror("timeout configuration error");
     		    close(_socket[i][j]);
-    		    exit(EXIT_FAILURE);
+    		    throw std::exception();
     		}
 		}
 	}
@@ -69,8 +69,7 @@ void Server::linkAddPort()
 			if (bind(_socket[i][j], (struct sockaddr *)&_address, sizeof(_address)) < 0)
 			{
 				std::cout << "error : bind failed" << std::endl;
-				perror("");
-				throw std::exception();
+				continue;
 			}
 			std::cout << "Bind success." << std::endl;
 		}

@@ -77,10 +77,10 @@ bool GenerateBody::checkRedirection()
 void GenerateBody::defineRoot()
 {
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
-	std::cout << "path = " << _path << std::endl;
-	std::cout << "ressource_path = " << ressource_path << std::endl;
-	size_t pos = ressource_path.find_first_of(_path);
-	std::cout << "pos = " << pos << std::endl;
+	//std::cout << "path = " << _path << std::endl;
+	//std::cout << "ressource_path = " << ressource_path << std::endl;
+	size_t pos = ressource_path.find(_path);
+	//std::cout << "pos = " << pos << std::endl;
 	if (pos != std::string::npos)
 		ressource_path.replace(pos, _path.length(), _path);
 	else
@@ -201,7 +201,7 @@ bool GenerateBody::uploadAsked()
 			if (!_request["Body"][0])
 			{
 				_errorCode = 400;
-				perror("empty body");
+				std::cout << ("empty body") << std::endl;
 				_responseBody = generateErrorPage(_errorCode);
 				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 				return true;

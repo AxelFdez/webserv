@@ -135,8 +135,9 @@ void ClientRequest::readRequest()
 
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if (_pollSockets[i].revents & POLLIN)
+		if (_pollSockets[i].revents & POLLIN && _clients[_pollSockets[i].fd].getRequest().size() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
+			// if (strstr())
 			int bufferSize = 1024;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
@@ -147,6 +148,7 @@ void ClientRequest::readRequest()
 			else
 			{
 				//request[bytes] = '\0';
+				//std::cout << "request = " << request << std::endl;
 				std::vector<char> requestBinary(request, request + bytes);
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
 					_clients[_pollSockets[i].fd].setRequest(requestBinary);
@@ -171,10 +173,12 @@ void ClientRequest::sendResponse()
 {
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if ((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty())
+		if (((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) \
+			|| _clients[_pollSockets[i].fd].getRequest().size() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
+			std::cerr << "request size = " << _clients[_pollSockets[i].fd].getRequest().size() << std::endl;
+			std::cerr << "body size max = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
 			//displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
@@ -195,7 +199,7 @@ void ClientRequest::sendResponse()
 				}
 				bytesSent += bytes;
 			}
-			response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
+			//response.access_logs(_clients[_pollSockets[i].fd].getClientIP()); // ************* TEST **********************************************************************
 			close(_pollSockets[i].fd);
 			_clients.erase(_pollSockets[i].fd);
 			_pollSockets.erase(_pollSockets.begin() + i);

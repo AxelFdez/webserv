@@ -59,7 +59,7 @@ const std::string &GenerateHeader::getHeader()
 std::string getContentType(const std::string& filePath)
 {
     std::map<std::string, std::string> contentTypes;
-    contentTypes[".html"] = "text/html";
+    contentTypes[".html"] = "text/html; charset=UTF-8";
     contentTypes[".txt"] = "text/plain";
     contentTypes[".css"] = "text/css";
     contentTypes[".js"] = "application/javascript";
