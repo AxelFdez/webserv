@@ -7,6 +7,7 @@ CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::st
 	_method = method;
 	_request = request;
 	_requestBody = request["Body"];
+	//std:: cerr << "requestBody: " << _requestBody << std::endl;
 	_lineEnding = lineEnding;
 	_extension = extension;
 	executeCGI();
@@ -38,7 +39,8 @@ void	CGI::executeCGI()
 		chdir(getDirectory().c_str());
 		char *cmd[2];
 		if (_extension == ".php")
-			cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
+			//cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
+			cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
@@ -110,22 +112,24 @@ std::string	CGI::getDirectory()
 std::vector<std::string> CGI::envCGI()
 {
 	std::vector<std::string> env;
-		env.push_back("REDIRECT_STATUS=CGI");
-		env.push_back("REQUEST_METHOD=" + _method);
-		if (_method == "POST")
-		{
-        	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");// + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
-        	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
-    	}
-		env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
-		if (_uri.find('?', 0) != std::string::npos && _method == "GET")
-		{
-			env.push_back(("QUERY_STRING=") + _uri.substr(_uri.find('?', 0) + 1, _uri.size() - _uri.find('?', 0)));
-		}
-		if (!_request["Cookie"].empty())
-		{
-			env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
-		}
+	env.push_back("REDIRECT_STATUS=CGI");
+	env.push_back("REQUEST_METHOD=" + _method);
+	if (_method == "POST")
+	{
+    	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
+    	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
+    }
+	env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
+	if (_uri.find('?', 0) != std::string::npos && _method == "GET")
+	{
+		env.push_back(("QUERY_STRING=") + _uri.substr(_uri.find('?', 0) + 1, _uri.size() - _uri.find('?', 0)));
+	}
+	if (!_request["Cookie"].empty())
+	{
+		env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
+	}
+	for (int i = 0; i < env.size(); i++)
+		std::cerr << "env[" << i << "]: " << env[i] << std::endl;
 	return env;
 }
 

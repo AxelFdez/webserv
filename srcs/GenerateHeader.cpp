@@ -80,5 +80,5 @@ std::string getContentType(const std::string& filePath)
             return contentTypes[extension];
         }
     }
-    return "application/octet-stream";
+    return "text/plain";
 }

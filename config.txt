@@ -9,11 +9,7 @@ server    [
     listen   8080;
     listen   8081;
     host    127.0.0.1;
-<<<<<<< HEAD
     server_name localhost;
-=======
-    server_name chmassa/axfernand;
->>>>>>> origin/chris
     body_size_max 1;
 
 
@@ -24,27 +20,18 @@ server    [
     location   /        {
 
 
-<<<<<<< HEAD
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
-        methods         GET POST;
+        methods         GET;
         print_logs_request  on;
         download            on;
         download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/depot;
-=======
-        root /Users/chris/Desktop/webServ42/srcs/tools/website_1;
-        index index.html index.htm;
-        methods         GET POST;
-        print_logs_request  on;
-        download            on;
-        download_folder     /Users/chris/Desktop/webServ42/srcs/tools/depot;
->>>>>>> origin/chris
         directory_listing          on     ;
 
     }
 
     location  /side_pages/            {
 
-        root   /Users/chris/Desktop/webServ42/srcs/tools/side_pages;
+        root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/side_pages;
         index  side_page.html index.htm;
         methods GET POST DELETE;
         download            on;

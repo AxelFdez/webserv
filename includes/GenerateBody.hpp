@@ -27,6 +27,7 @@ class GenerateBody
 		std::string 	_uri;
 		std::string 	_protocol;
 		std::string 	_path;
+		std::string 	_root;
 		std::string 	_requestBody;
 		std::string 	_responseBody;
 		std::string 	_responseHeader;

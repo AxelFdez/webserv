@@ -33,7 +33,7 @@ void GenerateBody::handleRequest()
 	}
 
 	defineRoot();
-	std::cout << "_path = "<< _path << std::endl;
+	std::cout << "_root = "<< _root << std::endl;
 	if (!isPathAccess())
 	{
 		return;
@@ -57,7 +57,7 @@ void GenerateBody::handleRequest()
 	{
 		return;
 	}
-	_responseBody = getRessource(_path);
+	_responseBody = getRessource(_root);
 	_errorCode = 200;
 }
 
@@ -76,48 +76,61 @@ bool GenerateBody::checkRedirection()
 
 void GenerateBody::defineRoot()
 {
+	//std::cout << "location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;;
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
-	//std::cout << "path = " << _path << std::endl;
-	//std::cout << "ressource_path = " << ressource_path << std::endl;
-	size_t pos = ressource_path.find(_path);
+	std::string pathTmp2(_path);
+	std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
+	//size_t pos = ressource_path.find(_path);
 	//std::cout << "pos = " << pos << std::endl;
-	if (pos != std::string::npos)
-		ressource_path.replace(pos, _path.length(), _path);
-	else
-		ressource_path += _path;
+	//if (pos != std::string::npos)
+	ressource_path = pathTmp;
 	if (isFile(ressource_path.c_str()))
 	{
-		_path = ressource_path;
+		_root = ressource_path;
 	}
 	else if (isDir(ressource_path.c_str()))
 	{
 		if (ressource_path[ressource_path.size() - 1] != '/')
 			ressource_path += "/";
 		if (_config.getLocationValues(_serverNo, _path, "index").size() == 0)
-			_path = ressource_path;
+			_root = ressource_path;
 		for (size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "index").size(); i++)
 		{
 			if (access((ressource_path +_config.getLocationValues(_serverNo, _path, "index")[i]).c_str(), F_OK) == 0)
 			{
 				if (_config.getLocationValues(_serverNo, _path, "index")[i][0] == '/')
-					_path = ressource_path + _config.getLocationValues(_serverNo, _path, "index")[i].erase(0, 1);
+					_root = ressource_path + _config.getLocationValues(_serverNo, _path, "index")[i].erase(0, 1);
 				else
-					_path = ressource_path + _config.getLocationValues(_serverNo, _path, "index")[i];
+				{
+					_root = ressource_path + _config.getLocationValues(_serverNo, _path, "index")[i];
+				}
 				break;
 			}
 			if (i == _config.getLocationValues(_serverNo, _path, "index").size() - 1)
 			{
-				_path = ressource_path;
+				_root = ressource_path;
 			}
 		}
+	}
+	else
+	{
+		_root = ressource_path;
 	}
 }
 
 bool GenerateBody::checkDirectoryListing()
 {
-	if (isDir(_path.c_str()))
+	if (isDir(_root.c_str()))
 	{
-		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
+		if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
+		{
+			puts("directory_listing empty");
+			_errorCode = 403;
+			_responseBody = generateErrorPage(_errorCode);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			return true;
+		}
+		else if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
 		{
 			_responseBody = generateListingDirectoryPage(_path, "", true);
 			_errorCode = 200;
@@ -130,14 +143,14 @@ bool GenerateBody::checkDirectoryListing()
 
 bool GenerateBody::isPathAccess()
 {
-	if (access(_path.c_str(), F_OK) == -1)
+	if (access(_root.c_str(), F_OK) == -1)
 	{
 		_errorCode = 404;
 		_responseBody = generateErrorPage(_errorCode);
 		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 		return false;
 	}
-	else if (access(_path.c_str(), R_OK) == -1)
+	else if (access(_root.c_str(), R_OK) == -1)
 	{
 
 		_errorCode = 403;
@@ -152,7 +165,7 @@ bool GenerateBody::deleteMethod()
 {
 	if (_method == "DELETE")
 	{
-		if(isDir(_path.c_str()) && remove( _path.c_str() ) != 0)
+		if(isDir(_root.c_str()) && remove( _root.c_str() ) != 0)
 		{
 			perror( "Error deleting file" );
 			_errorCode = 403;
@@ -177,7 +190,7 @@ bool GenerateBody::isCgiRequired(std::string extension)
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
-		CGI cgi(_path, _uri, _method, _request, _lineEnding, extension);
+		CGI cgi(_root, _uri, _method, _request, _lineEnding, extension);
 		_errorCode = cgi.getErrorCode();
 		if (_errorCode >= 500)
 		{
@@ -208,6 +221,14 @@ bool GenerateBody::uploadAsked()
 			}
 			std::string filename = _request["Body"].substr(_request["Body"].find("filename=") + 10);
 			filename = filename.substr(0, filename.find("\""));
+			if (filename.empty())
+			{
+				_errorCode = 400;
+				std::cout << ("empty filename") << std::endl;
+				_responseBody = generateErrorPage(_errorCode);
+				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+				return true;
+			}
 			std::vector<char> binaryData;
 			char *str = strstr(_binaryRequest.data(), "\r\n\r\n") + 4;
 			str = strstr(str, "\r\n\r\n") + 4;
@@ -293,7 +314,7 @@ bool	GenerateBody::requestValid()
 		_responseBody = generateErrorPage(404);
 		return false;
 	}
-	else if (_requestBody.size() > static_cast<size_t>(_config.getBodySizeMax(_serverNo)))
+	else if (_requestBody.size() > _config.getBodySizeMax(_serverNo))
 	{
 		_errorCode = 413;
 		_responseBody = generateErrorPage(413);
@@ -304,11 +325,11 @@ bool	GenerateBody::requestValid()
 
 std::string GenerateBody::isolateExtension()
 {
-	std::size_t lastIndex = _path.find_last_of(".");
+	std::size_t lastIndex = _root.find_last_of(".");
 	std::string extension;
 	if (lastIndex != std::string::npos)
 	{
-		extension = _path.substr(lastIndex);
+		extension = _root.substr(lastIndex);
 		return extension;
 	}
 	return "";
@@ -326,7 +347,7 @@ const int			&GenerateBody::getCode() const
 
 const std::string	&GenerateBody::getPath() const
 {
-	return _path;
+	return _root;
 }
 
 const std::string	&GenerateBody::getResponseHeader() const
@@ -359,7 +380,7 @@ std::string GenerateBody::generateErrorPage(int errorCode)
 	ErrorCode errorMessage;
 	std::stringstream html;
 	html << "<!DOCTYPE html>\n";
-	html << "<html lang=\"en\">\n";
+	html << "<html>\n";
 	html << "<head>\n";
 	html << "<meta charset=\"UTF-8\">\n";
 	html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";

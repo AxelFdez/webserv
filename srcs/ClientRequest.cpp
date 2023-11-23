@@ -121,6 +121,7 @@ void ClientRequest::acceptNewClient()
 		_pollSockets.push_back(pfd);
 		_clients[pfd.fd];
 		_clients[pfd.fd].setBelongOgServer(server);
+		_clients[pfd.fd].setBodySize(0);
 
 		char clientIP[INET_ADDRSTRLEN];
     	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
@@ -129,15 +130,13 @@ void ClientRequest::acceptNewClient()
 	}
 }
 
-
 void ClientRequest::readRequest()
 {
 
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if (_pollSockets[i].revents & POLLIN && _clients[_pollSockets[i].fd].getRequest().size() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
+		if (_pollSockets[i].revents & POLLIN && _clients[_pollSockets[i].fd].getBodySize() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			// if (strstr())
 			int bufferSize = 1024;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
@@ -147,11 +146,14 @@ void ClientRequest::readRequest()
 				perror("Client closed the connection");
 			else
 			{
-				//request[bytes] = '\0';
-				//std::cout << "request = " << request << std::endl;
 				std::vector<char> requestBinary(request, request + bytes);
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
+				{
 					_clients[_pollSockets[i].fd].setRequest(requestBinary);
+					std::string tmp = vectorCharToString( _clients[_pollSockets[i].fd].getRequest() );
+					tmp = tmp.substr(tmp.find("\r\n\r\n") + 3);
+					_clients[_pollSockets[i].fd].setBodySize(tmp.size());
+				}
 				else
 				{
 					std::vector<char> tmp = _clients[_pollSockets[i].fd].getRequest();
@@ -159,12 +161,13 @@ void ClientRequest::readRequest()
 					truncRequest = tmp;
 					truncRequest.insert(truncRequest.end(), requestBinary.begin(), requestBinary.end());
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
+					_clients[_pollSockets[i].fd].setBodySize(_clients[_pollSockets[i].fd].getBodySize() + bytes);
 				}
 				continue;
 			}
-			close(_pollSockets[i].fd);
-			_clients.count(_pollSockets[i].fd);
-			_pollSockets.erase(_pollSockets.begin() + i);
+			// close(_pollSockets[i].fd);
+			// _clients.count(_pollSockets[i].fd);
+			// _pollSockets.erase(_pollSockets.begin() + i);
 		}
 	}
 }
@@ -174,13 +177,10 @@ void ClientRequest::sendResponse()
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
 		if (((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) \
-			|| _clients[_pollSockets[i].fd].getRequest().size() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
+			|| (_pollSockets[i].revents & POLLOUT) && _clients[_pollSockets[i].fd].getBodySize() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			std::cerr << "request size = " << _clients[_pollSockets[i].fd].getRequest().size() << std::endl;
-			std::cerr << "body size max = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
-			//displayRequest(response.getResponse(), 1);
+			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
 			while (bytesSent < response.getResponse().size())
@@ -209,6 +209,18 @@ void ClientRequest::sendResponse()
 	}
 }
 
+std::string ClientRequest::vectorCharToString( std::vector<char> vec ) {
+
+    std::string str;
+    if ( vec.size() > 0 ) {
+
+        for ( size_t i = 0; i < vec.size(); i++ ) {
+            str.push_back( vec[i] );
+        }
+    }
+    return str;
+}
+
 void displayRequest(const std::string  &request, int modifier)
 {
 	if (!modifier)
@@ -221,5 +233,3 @@ void displayRequest(const std::string  &request, int modifier)
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----\033[0m" << std::endl;
 }
-
-
