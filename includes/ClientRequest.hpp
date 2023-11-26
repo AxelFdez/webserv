@@ -50,11 +50,29 @@ class ClientInfo
 		{
 			return _bodySize;
 		}
+		void		setResponse(std::string response)
+		{
+			_response = response;
+		}
+		std::string getResponse()
+		{
+			return _response;
+		}
+		void		setBytesSent(int bytes)
+		{
+			_bytesSent = bytes;
+		}
+		int			getBytesSent()
+		{
+			return _bytesSent;
+		}
 	private :
 		std::vector<char>	_request;
 		int					_belongOfServer;
 		std::string 		_clientIP;
 		int					_bodySize;
+		std::string			_response;
+		int					_bytesSent;
 };
 
 class ClientRequest
@@ -71,6 +89,7 @@ class ClientRequest
 		void		listenning();
 
 		std::string vectorCharToString( std::vector<char> vec );
+		bool		doubleLineEndingFound(std::vector<char>);
 
 	private :
 		ClientRequest();
