@@ -13,7 +13,11 @@ class GenerateHeader
 		void	headerFormat();
 		void	errorHeaderFormat();
 
-	private :
+	private:
+
+		GenerateHeader( GenerateHeader const& src );
+		GenerateHeader & operator=( GenerateHeader const& rhs );
+		
 		std::string _path;
 		int			_code;
 		std::string _cgiHeader;

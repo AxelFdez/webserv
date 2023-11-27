@@ -7,9 +7,10 @@
 class GenerateBody;
 class GenerateHeader;
 
-class MakeResponse
-{
-	public :
+class MakeResponse {		
+		
+	public:
+
 		MakeResponse(std::vector<char> request, int serverNo, HandleConfigFile &config);
 		~MakeResponse();
 		std::string	getResponse();
@@ -19,7 +20,12 @@ class MakeResponse
 		void		generateResponse();
 
 		void access_logs( std::string IP );
-	private :
+	
+	private:
+
+		MakeResponse( MakeResponse const& src );
+		MakeResponse & operator=( MakeResponse const& rhs );
+
 		HandleConfigFile _config;
 		std::string	_request;
 		std::vector<char> 	_binaryRequest;

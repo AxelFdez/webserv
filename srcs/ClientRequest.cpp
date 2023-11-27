@@ -99,14 +99,6 @@ void ClientRequest::acceptNewClient()
 		if (_pollSockets[i].revents & POLLIN)
 		{
 			newClient = accept(_pollSockets[i].fd, (struct sockaddr *)&clientAddr, &clientLen);
-
-			//**** TEST **********************************************************************
-			// char clientIP[INET_ADDRSTRLEN];
-    		// inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
-			// _clients[_pollSockets[i].fd].setClientIP( clientIP );
-			// std::cout << "IP = " << _clients[_pollSockets[i].fd].getClientIP() << std::endl;
-			// std::cout << "socket = " <<  _pollSockets[i].fd << std::endl;
-			//********************************************************************************
 		}
 		else
 			continue;

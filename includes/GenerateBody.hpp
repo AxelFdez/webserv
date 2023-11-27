@@ -15,7 +15,11 @@ class GenerateBody
 		const std::string	&getPath() const;
 		const std::string	&getResponseHeader() const;
 
-	private :
+	private:
+
+		GenerateBody( GenerateBody const& src );
+		GenerateBody & operator=( GenerateBody const& rhs );
+		
 		std::vector<char>	_binaryRequest;
 		std::map<std::string, std::string> _request;
 		std::string		_lineEnding;

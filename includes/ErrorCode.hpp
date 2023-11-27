@@ -4,10 +4,15 @@
 
 class ErrorCode
 {
-	public :
+	public:
+
 		ErrorCode();
 		~ErrorCode();
 		const std::string &getMessage(int code);
-	private :
+
+	private:
+		ErrorCode( ErrorCode const& src );
+		ErrorCode & operator=( ErrorCode const& rhs );
+		
 		std::map<int, std::string> _error;
 };

@@ -5,7 +5,8 @@
 
 class CGI
 {
-	public :
+	public:
+
 		CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension);
 		~CGI();
 		void						executeCGI();
@@ -16,9 +17,12 @@ class CGI
 		const std::string 			&getResponseBody() const;
 		const std::string 			&getCgiHeader() const;
 
+	private:
 
-	private :
 		CGI();
+		CGI( CGI const& src );
+		CGI & operator=( CGI const& rhs );
+
 		int _errorCode;
 		std::string _responseBody;
 		std::string _requestBody;
@@ -29,7 +33,5 @@ class CGI
 		std::string	_cgiHeader;
 		std::string	_extension;
 		std::map<std::string, std::string> _request;
-
-
 
 };

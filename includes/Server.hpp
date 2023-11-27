@@ -20,7 +20,8 @@ class HandleConfigFile;
 
 class Server
 {
-	public :
+	public:
+
 		Server(const std::string &configFile);
 		~Server();
 
@@ -29,7 +30,11 @@ class Server
 		//void listenning();
 
 
-	private :
+	private:
+
+		Server( Server const& src );
+		Server & operator=( Server const& rhs );
+	
 		HandleConfigFile				 _config;
 		std::vector<std::vector<int> >	_socket;
 		struct sockaddr_in				_address;
@@ -37,7 +42,6 @@ class Server
 		void createSocket();
 		void linkAddPort();
 		in_addr_t convIpToLong(const std::string& ipAddress);
-
 
 };
 
