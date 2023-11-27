@@ -1,4 +1,5 @@
 <?php
+var_dump($_FILES);
 if (isset($_FILES['file'])) {
     $target_dir = "/Users/chris/Desktop/webServ42/srcs/tools/website_1/depot/";
     $target_file = $target_dir . basename($_FILES['file']['name']);
@@ -11,5 +12,7 @@ if (isset($_FILES['file'])) {
 } else {
     echo "Aucun fichier n'a été téléchargé.";
 }
+
+
 ?>
 

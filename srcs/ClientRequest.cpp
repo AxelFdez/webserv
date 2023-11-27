@@ -129,7 +129,6 @@ void ClientRequest::acceptNewClient()
 	}
 }
 
-
 void ClientRequest::readRequest()
 {
 
@@ -150,6 +149,7 @@ void ClientRequest::readRequest()
 				//request[bytes] = '\0';
 				//std::cout << "request = " << request << std::endl;
 				std::vector<char> requestBinary(request, request + bytes);
+
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
 					_clients[_pollSockets[i].fd].setRequest(requestBinary);
 				else
@@ -176,11 +176,11 @@ void ClientRequest::sendResponse()
 		if (((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) \
 			|| _clients[_pollSockets[i].fd].getRequest().size() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			std::cerr << "request size = " << _clients[_pollSockets[i].fd].getRequest().size() << std::endl;
-			std::cerr << "body size max = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
+			// std::cerr << "request size = " << _clients[_pollSockets[i].fd].getRequest().size() << std::endl;
+			// std::cerr << "body size max = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
 			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
 			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
-			//displayRequest(response.getResponse(), 1);
+			displayRequest(response.getResponse(), 1);
 			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			u_long bytesSent = 0;
 			while (bytesSent < response.getResponse().size())

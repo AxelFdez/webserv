@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   getConfigFile.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:28 by chris             #+#    #+#             */
-/*   Updated: 2023/11/21 23:31:28 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/23 14:42:43 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,15 @@ class getConfigFile {
         getConfigFile( char* file );
         virtual ~getConfigFile();
         virtual std::string getValue( std::string str );
-        class ConfigException : public std::exception
-	    {
-		    public :
-		    	ConfigException(const char* errorMessage) throw();
-		    	virtual ~ConfigException() throw();
-		    	const char *what() const throw();
-		    private :
-		    	const char *_errorMessage;
-	    };
+        // class ConfigException : public std::exception
+	    // {
+		//     public :
+		//     	ConfigException(const char* errorMessage) throw();
+		//     	virtual ~ConfigException() throw();
+		//     	const char *what() const throw();
+		//     private :
+		//     	const char *_errorMessage;
+	    // };
 
 
     protected:

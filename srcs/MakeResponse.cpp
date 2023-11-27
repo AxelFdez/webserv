@@ -5,7 +5,7 @@ MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, Handle
 	for (int i = 0; i < binaryRequest.size(); i++)
 		_request.push_back(binaryRequest[i]);
 	_request.push_back('\0');
-	//displayRequest(_request, 0);
+	displayRequest(_request, 0);
 	_lineEnding = detectLineEnding(_request);
 	handleRequest();
 }

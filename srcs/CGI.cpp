@@ -16,6 +16,7 @@ CGI::~CGI() {}
 
 void	CGI::executeCGI()
 {
+	
 	int stdinPipe[2];
 	int stdoutPipe[2];
 	pipe(stdinPipe);
@@ -44,14 +45,19 @@ void	CGI::executeCGI()
 		cmd[1] = NULL;
 		std::vector<char*> env;
 		std::vector<std::string> tmp = envCGI();
+	
 		for (size_t i = 0; i < tmp.size(); i++)
 			env.push_back(const_cast<char*>(tmp[i].c_str()));
 		env.push_back(NULL);
+		for ( size_t i = 0; env[i]; i++ ) {
+			std::cerr << env[i] << std::endl;
+		}
 		execve(cmd[0], cmd, env.data());
 		perror("execve");
 	}
 	write(stdinPipe[1], _requestBody.c_str(), _requestBody.length());
 	close(stdinPipe[1]);
+
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
 	int ret = 0;
@@ -114,7 +120,9 @@ std::vector<std::string> CGI::envCGI()
 		env.push_back("REQUEST_METHOD=" + _method);
 		if (_method == "POST")
 		{
-        	env.push_back("CONTENT_TYPE=application/x-www-form-urlencoded");// + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
+			
+        	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
+        	// env.push_back(("CONTENT_TYPE=application/x-www-form-urlencoded") + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
         	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
     	}
 		env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));

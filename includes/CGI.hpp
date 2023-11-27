@@ -30,4 +30,6 @@ class CGI
 		std::string	_extension;
 		std::map<std::string, std::string> _request;
 
+
+
 };
