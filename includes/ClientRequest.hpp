@@ -42,11 +42,37 @@ class ClientInfo
 		std::string getClientIP() {
 			return _clientIP;
 		}
-
+		void		setBodySize(int value)
+		{
+			_bodySize = value;
+		}
+		int 		getBodySize()
+		{
+			return _bodySize;
+		}
+		void		setResponse(std::string response)
+		{
+			_response = response;
+		}
+		std::string getResponse()
+		{
+			return _response;
+		}
+		void		setBytesSent(int bytes)
+		{
+			_bytesSent = bytes;
+		}
+		int			getBytesSent()
+		{
+			return _bytesSent;
+		}
 	private :
 		std::vector<char>	_request;
 		int					_belongOfServer;
 		std::string 		_clientIP;
+		int					_bodySize;
+		std::string			_response;
+		int					_bytesSent;
 };
 
 class ClientRequest
@@ -62,6 +88,8 @@ class ClientRequest
 		void		pollFunc();
 		void		listenning();
 
+		std::string vectorCharToString( std::vector<char> vec );
+		bool		doubleLineEndingFound(std::vector<char>);
 
 	private :
 		ClientRequest();
@@ -71,7 +99,7 @@ class ClientRequest
 		std::vector<struct pollfd>	_pollSockets;
 		std::map<int, ClientInfo>	_clients;
 
-		
+
 		//std::map<int, std::string>	_client;
 };
 

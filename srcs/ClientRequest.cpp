@@ -119,8 +119,10 @@ void ClientRequest::acceptNewClient()
 		pfd.fd = newClient;
 		pfd.events = POLLIN | POLLOUT;
 		_pollSockets.push_back(pfd);
+		fcntl(pfd.fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 		_clients[pfd.fd];
 		_clients[pfd.fd].setBelongOgServer(server);
+		_clients[pfd.fd].setBodySize(0);
 
 		char clientIP[INET_ADDRSTRLEN];
     	inet_ntop(AF_INET, &(clientAddr.sin_addr), clientIP, INET_ADDRSTRLEN);
@@ -129,42 +131,72 @@ void ClientRequest::acceptNewClient()
 	}
 }
 
+bool ClientRequest::doubleLineEndingFound(std::vector<char> request)
+{
+	if (request.size() >= 4)
+	{
+		std::string tmp = vectorCharToString( request );
+		if (tmp.find("\r\n\r\n") != std::string::npos)
+			return true;
+	}
+	return false;
+}
+
 void ClientRequest::readRequest()
 {
 
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if (_pollSockets[i].revents & POLLIN && _clients[_pollSockets[i].fd].getRequest().size() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
+		if (_pollSockets[i].revents & POLLIN \
+			&& _clients[_pollSockets[i].fd].getBodySize() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			// if (strstr())
 			int bufferSize = 1024;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
-			if (bytes < 0)
+			if (bytes <= 0)
+			{
 				perror("Error data reception");
-			else if (bytes == 0)
-				perror("Client closed the connection");
+				close(_pollSockets[i].fd);
+				_clients.erase(_pollSockets[i].fd);
+				_pollSockets.erase(_pollSockets.begin() + i);
+				continue;
+			}
 			else
 			{
-				//request[bytes] = '\0';
-				//std::cout << "request = " << request << std::endl;
 				std::vector<char> requestBinary(request, request + bytes);
 
 				if (_clients[_pollSockets[i].fd].getRequest().empty())
+				{
 					_clients[_pollSockets[i].fd].setRequest(requestBinary);
+					std::string tmp = vectorCharToString( _clients[_pollSockets[i].fd].getRequest() );
+					if (tmp.find("\r\n\r\n") != std::string::npos)
+					{
+						tmp = tmp.substr(tmp.find("\r\n\r\n") + 3);
+						_clients[_pollSockets[i].fd].setBodySize(tmp.size());
+					}
+				}
 				else
 				{
 					std::vector<char> tmp = _clients[_pollSockets[i].fd].getRequest();
 					std::vector<char> truncRequest;
 					truncRequest = tmp;
 					truncRequest.insert(truncRequest.end(), requestBinary.begin(), requestBinary.end());
+					if (!_clients[_pollSockets[i].fd].getBodySize())
+					{
+						std::string tmp = vectorCharToString( truncRequest );
+						if (tmp.find("\r\n\r\n") != std::string::npos)
+						{
+							tmp = tmp.substr(tmp.find("\r\n\r\n") + 3);
+							_clients[_pollSockets[i].fd].setBodySize(tmp.size());
+						}
+					}
+					else
+						_clients[_pollSockets[i].fd].setBodySize(_clients[_pollSockets[i].fd].getBodySize() + bytes);
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 				}
-				continue;
 			}
-			close(_pollSockets[i].fd);
-			_clients.count(_pollSockets[i].fd);
-			_pollSockets.erase(_pollSockets.begin() + i);
+
+
 		}
 	}
 }
@@ -174,39 +206,54 @@ void ClientRequest::sendResponse()
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
 		if (((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) \
-			|| _clients[_pollSockets[i].fd].getRequest().size() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
+			|| (_pollSockets[i].revents & POLLOUT) && _clients[_pollSockets[i].fd].getBodySize() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			// std::cerr << "request size = " << _clients[_pollSockets[i].fd].getRequest().size() << std::endl;
-			// std::cerr << "body size max = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
-			MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			//MakeResponse response(_clients[_pollSockets[i].fd].getRequest());
-			displayRequest(response.getResponse(), 1);
-			fcntl(_pollSockets[i].fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-			u_long bytesSent = 0;
-			while (bytesSent < response.getResponse().size())
+			if (_clients[_pollSockets[i].fd].getResponse().empty())
 			{
-				std::string partialResponse= response.getResponse().substr(bytesSent);
-				ssize_t bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
-				if (bytes < 0)
-				{
-					perror("send error");
-					break;
-				}
-				else if (bytes == 0)
-				{
-					perror("client closed the connection");
-					break;
-				}
-				bytesSent += bytes;
+				_clients[_pollSockets[i].fd].setBytesSent(0);
+				MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
+				//displayRequest(response.getResponse(), 1);
+				_clients[_pollSockets[i].fd].setResponse(response.getResponse());
+				response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			}
-
-			response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
-			close(_pollSockets[i].fd);
-			_clients.erase(_pollSockets[i].fd);
-			_pollSockets.erase(_pollSockets.begin() + i);
-			i--;
+			std::string partialResponse = _clients[_pollSockets[i].fd].getResponse().substr(_clients[_pollSockets[i].fd].getBytesSent(), 1024);
+			std::cout << "partialResponse = " << partialResponse << std::endl;
+			size_t bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
+			if (bytes < 0)
+			{
+				perror("Error data sending");
+				close(_pollSockets[i].fd);
+				_clients.erase(_pollSockets[i].fd);
+				_pollSockets.erase(_pollSockets.begin() + i);
+				i--;
+				continue;;
+			}
+			else
+			{
+				_clients[_pollSockets[i].fd].setBytesSent(_clients[_pollSockets[i].fd].getBytesSent() + bytes);
+				if (_clients[_pollSockets[i].fd].getBytesSent() >= _clients[_pollSockets[i].fd].getResponse().size())
+				{
+					close(_pollSockets[i].fd);
+					_clients.erase(_pollSockets[i].fd);
+					_pollSockets.erase(_pollSockets.begin() + i);
+					i--;
+				}
+			}
 		}
 	}
+}
+
+
+std::string ClientRequest::vectorCharToString( std::vector<char> vec ) {
+
+    std::string str;
+    if ( vec.size() > 0 ) {
+
+        for ( size_t i = 0; i < vec.size(); i++ ) {
+            str.push_back( vec[i] );
+        }
+    }
+    return str;
 }
 
 void displayRequest(const std::string  &request, int modifier)
@@ -221,5 +268,3 @@ void displayRequest(const std::string  &request, int modifier)
 	else
 		std::cout << "\033[0;42m-----RESPONSE-----\033[0m" << std::endl;
 }
-
-

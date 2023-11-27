@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
+/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/17 09:42:45 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/23 15:09:36 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
 
     // print_config();
     // print_ports_bodySize();
-    // print_locations();
+    //print_locations();
 }
 
 HandleConfigFile::~HandleConfigFile() {}
