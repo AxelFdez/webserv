@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/23 15:09:36 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/27 15:56:04 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
 
     // print_config();
     // print_ports_bodySize();
-    //print_locations();
+    // print_locations();
 }
 
 HandleConfigFile::~HandleConfigFile() {}
@@ -27,6 +27,8 @@ HandleConfigFile::~HandleConfigFile() {}
 // ******** TOOLS **************************************************************************
 
 void HandleConfigFile::getLocations() {
+
+    std::vector<std::string> locationsTmp;
 
     for (size_t i = 0; i != config.size(); i++ ) {
 
@@ -39,12 +41,34 @@ void HandleConfigFile::getLocations() {
 
                 _locations[i].push_back( std::map<std::string, std::vector<std::string> >() );
                 while ( *it != "}" ) {
+                    
+                    if ( getKey(*it) == "location" ) {
+                        locationsTmp.push_back( splitStringToVector(getValue(*it))[0] );
+                    }
                     _locations[i][iLocation].insert( std::pair<std::string, std::vector<std::string> >( getKey( *it ), splitStringToVector( getValue(*it) )) );
                     it++;
                 }
                 iLocation++;
             }
         }
+        checkDuplicateLocation( locationsTmp );
+    }
+}
+
+void HandleConfigFile::checkDuplicateLocation( std::vector<std::string> & vecLoc ) {
+
+    if ( !vecLoc.empty() ) {
+
+        for (size_t i = 0; i < vecLoc.size(); ++i) {
+
+            for (size_t j = i + 1; j < vecLoc.size(); ++j) {
+
+                if (vecLoc[i] == vecLoc[j]) {
+                    throw std::invalid_argument( RED "Error: config file: duplicate location" RESET );
+                }
+            }
+        }
+        vecLoc.clear();
     }
 }
 

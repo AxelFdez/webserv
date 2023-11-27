@@ -144,7 +144,6 @@ bool ClientRequest::doubleLineEndingFound(std::vector<char> request)
 
 void ClientRequest::readRequest()
 {
-
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
 		if (_pollSockets[i].revents & POLLIN \
@@ -195,8 +194,6 @@ void ClientRequest::readRequest()
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 				}
 			}
-
-
 		}
 	}
 }

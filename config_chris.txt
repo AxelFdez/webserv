@@ -41,6 +41,7 @@ server   [
         directory_listing      on;
     }
 
+     
     error_403              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/403.html;
     error_404              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/404.html;
     error_500              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/500.html;
@@ -74,7 +75,7 @@ server [
 
     }
 
-    location = /etc {
+    location /etc {
 
         root   /website/html;
         index  index.html index.htm;
