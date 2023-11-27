@@ -21,7 +21,7 @@ server    [
 
 
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
-        methods         GET;
+        methods         GET POST;
         print_logs_request  on;
         download            on;
         download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/depot;

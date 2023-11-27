@@ -66,6 +66,14 @@ class ClientInfo
 		{
 			return _bytesSent;
 		}
+		void		setReady(bool value)
+		{
+			_ready = value;
+		}
+		bool		getReady()
+		{
+			return _ready;
+		}
 	private :
 		std::vector<char>	_request;
 		int					_belongOfServer;
@@ -73,6 +81,7 @@ class ClientInfo
 		int					_bodySize;
 		std::string			_response;
 		int					_bytesSent;
+		bool				_ready;
 };
 
 class ClientRequest
