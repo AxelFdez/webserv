@@ -74,16 +74,38 @@ bool GenerateBody::checkRedirection()
 	return true;
 }
 
+void cutDbSlash( std::string & str ) {
+
+    if ( !str.empty() ) {
+
+        for ( size_t i = 0; i < str.size(); i++ ) {
+
+            if ( str[i] == '/' && str[i +1] == '/' ) {
+                str.erase( i, 1 );
+            }
+        }
+    }
+}
+
 void GenerateBody::defineRoot()
 {
 	//std::cout << "location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;;
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
 	std::string pathTmp2(_path);
+	//std::cout <<  "pathtmp2 = " << pathTmp2 << std::endl;
+	//std::cout <<  "ressourcepath = " << ressource_path << std::endl;
+	if (ressource_path[ressource_path.size() - 1] != '/')
+		ressource_path += "/";
 	std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
+	cutDbSlash(pathTmp);
 	//size_t pos = ressource_path.find(_path);
 	//std::cout << "pos = " << pos << std::endl;
 	//if (pos != std::string::npos)
+	// if (pathTmp[pathTmp.size() - 1] != '/')
+	// 	pathTmp += "/";
+	//std::cout <<  "pathtmp = " << pathTmp << std::endl;
 	ressource_path = pathTmp;
+	//std::cout <<  "ressourcepath = " << ressource_path << std::endl;
 	if (isFile(ressource_path.c_str()))
 	{
 		_root = ressource_path;
@@ -120,9 +142,18 @@ void GenerateBody::defineRoot()
 
 bool GenerateBody::checkDirectoryListing()
 {
+	//std::cout << "_path = " << _path << std::endl;
+	//std::cout << "_location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;
 	if (isDir(_root.c_str()))
 	{
-		if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
+		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "off")
+		{
+			_errorCode = 404;
+			_responseBody = generateErrorPage(_errorCode);
+			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			return true;
+		}
+		else if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
 		{
 			puts("directory_listing empty");
 			_errorCode = 403;
