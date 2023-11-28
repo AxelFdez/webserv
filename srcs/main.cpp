@@ -1,11 +1,10 @@
 #include "../includes/HandleConfigFile.hpp"
 #include "../includes/Server.hpp"
 
-static int	ft_strncmp(const char *s1, const char *s2, size_t n)
-{
-	size_t	i;
+static int	ft_strncmp(const char *s1, const char *s2, size_t n) {
 
-	i = 0;
+	size_t	i = 0;
+
 	if (n <= 0)
 		return (0);
 	while ((((unsigned char *)s1)[i] != '\0'
@@ -15,13 +14,13 @@ static int	ft_strncmp(const char *s1, const char *s2, size_t n)
 		i++;
 	return (((unsigned char *)s1)[i] - ((unsigned char *)s2)[i]);
 }
+
 static std::string find_php_cgi( char** envp ) {
 
-	int i = 0;
 	std::string paths, line;
 	std::vector<std::string> vecPaths;
-	while ( envp[i] ) {
-		
+	for ( int i = 0; envp[i] != NULL; i++ ) {
+
 		if ( ft_strncmp(envp[i], "PATH=", 5 ) == 0 ) {
 			paths = envp[i] + 5;
 			for ( size_t j = 0; j < paths.length(); j++ ) {
@@ -33,15 +32,15 @@ static std::string find_php_cgi( char** envp ) {
 					continue;
 				}
 				line.push_back(paths[j]);
-
 			}
 			if ( !line.empty() ) {
 				vecPaths.push_back(line + "/php-cgi");
 			}
 		}
-		i++;
+
 	}
 	for ( size_t i = 0; i < vecPaths.size(); i++ ) {
+
 		if ( access( vecPaths[i].c_str(), X_OK ) == 0) {
 			return vecPaths[i];
 		}
