@@ -32,3 +32,6 @@ int main (int argc, char **argv)
 	//system("lsof -c webserv");
 	return (0);
 }
+
+
+// question sur le body size

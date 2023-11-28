@@ -3,7 +3,8 @@
 GenerateBody::GenerateBody(std::vector<char> binaryRequest, std::map<std::string, std::string> request, std::string lineEnding, int serverNo, HandleConfigFile &config) : _binaryRequest(binaryRequest), _request(request), _lineEnding(lineEnding), _serverNo(serverNo), _config(config)
 {
 	_requestBody = request["Body"];
-	_requestHost = request["Host"].substr(0, request["Host"].find(':'));
+	_requestHost = request["Host"].substr(0, request["Host"].find('\r'));
+	_requestHost = _requestHost.substr(0, _requestHost.find(':'));
 	std::istringstream split(request["Request"]);
 	getline(split, _method, ' ');
 	getline(split, _uri, ' ');
@@ -89,7 +90,8 @@ void cutDbSlash( std::string & str ) {
 
 void GenerateBody::defineRoot()
 {
-	//std::cout << "location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;;
+	std::cout << "path = " << _path << std::endl;
+	std::cout << "location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;;
 	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
 	std::string pathTmp2(_path);
 	//std::cout <<  "pathtmp2 = " << pathTmp2 << std::endl;
@@ -105,7 +107,7 @@ void GenerateBody::defineRoot()
 	// 	pathTmp += "/";
 	//std::cout <<  "pathtmp = " << pathTmp << std::endl;
 	ressource_path = pathTmp;
-	//std::cout <<  "ressourcepath = " << ressource_path << std::endl;
+	std::cout <<  "ressourcepath = " << ressource_path << std::endl;
 	if (isFile(ressource_path.c_str()))
 	{
 		_root = ressource_path;
@@ -163,7 +165,7 @@ bool GenerateBody::checkDirectoryListing()
 		}
 		else if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
 		{
-			_responseBody = generateListingDirectoryPage(_path, "", true);
+			_responseBody = generateListingDirectoryPage(_root, "", true);
 			_errorCode = 200;
 			_responseHeader = "Content_Type: text/html\nContent-Length: " + std::to_string(_responseBody.size());
 			return true;
@@ -331,8 +333,9 @@ bool GenerateBody::uploadAsked()
 
 bool	GenerateBody::requestValid()
 {
-	if (_method != "GET" && _method != "POST" && _method != "DELETE"
-		&& _protocol != "HTTP/1.1" && *_uri.begin() != '/' && _requestHost.empty())
+	std::cout << "host = " << _requestHost << std::endl;
+	if ((_method != "GET" && _method != "POST" && _method != "DELETE") \
+		|| _protocol != "HTTP/1.1" || *_uri.begin() != '/' || _requestHost.empty())
 	{
 		_errorCode = 400;
 		_responseBody = generateErrorPage(400);
@@ -341,6 +344,7 @@ bool	GenerateBody::requestValid()
 	else if (_requestHost != _config.getServerValues(_serverNo, "host") \
 		&& _requestHost != _config.getServerValues(_serverNo, "server_name"))
 	{
+		std::cerr << "host missing or invalid" << std::endl;
 		_errorCode = 404;
 		_responseBody = generateErrorPage(404);
 		return false;

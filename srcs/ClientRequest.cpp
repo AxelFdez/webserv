@@ -143,7 +143,7 @@ void ClientRequest::readRequest()
 		if (_pollSockets[i].revents & POLLIN \
 			&& _clients[_pollSockets[i].fd].getBodySize() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			int bufferSize = 1024;
+			int bufferSize = 65536;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
 			//std::cout << "request = " << request << std::endl;
@@ -188,6 +188,7 @@ void ClientRequest::readRequest()
 					}
 					else
 						_clients[_pollSockets[i].fd].setBodySize(_clients[_pollSockets[i].fd].getBodySize() + bytes);
+					std::cout << "bodySize = " << _clients[_pollSockets[i].fd].getBodySize() << std::endl;
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 					if (doubleLineEndingFound(_clients[_pollSockets[i].fd].getRequest()) && !_clients[_pollSockets[i].fd].getReady())
 						_clients[_pollSockets[i].fd].setReady(true);
@@ -212,7 +213,7 @@ void ClientRequest::sendResponse()
 			{
 				_clients[_pollSockets[i].fd].setBytesSent(0);
 				MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-				displayRequest(response.getResponse(), 1);
+			//	displayRequest(response.getResponse(), 1);
 				_clients[_pollSockets[i].fd].setResponse(response.getResponse());
 				response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			}

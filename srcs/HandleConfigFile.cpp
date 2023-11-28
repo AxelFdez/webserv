@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
+/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/27 15:56:04 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/28 10:55:59 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void HandleConfigFile::getLocations() {
 
                 _locations[i].push_back( std::map<std::string, std::vector<std::string> >() );
                 while ( *it != "}" ) {
-                    
+
                     if ( getKey(*it) == "location" ) {
                         locationsTmp.push_back( splitStringToVector(getValue(*it))[0] );
                     }
@@ -104,7 +104,7 @@ void HandleConfigFile::get_ports_bodySize() {
                 std::istringstream iss( value );
                 int number;
                 if (iss >> number ) {
-                    _body_size_max.push_back( number * 1000000 );
+                    _body_size_max.push_back( number );
                 }
             }
         }

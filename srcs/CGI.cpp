@@ -17,7 +17,7 @@ CGI::~CGI() {}
 
 void	CGI::executeCGI()
 {
-	
+
 	int stdinPipe[2];
 	int stdoutPipe[2];
 	pipe(stdinPipe);
@@ -41,19 +41,19 @@ void	CGI::executeCGI()
 		char *cmd[2];
 		if (_extension == ".php")
 			cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
-			// cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
+			//cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
 		std::vector<char*> env;
 		std::vector<std::string> tmp = envCGI();
-	
+
 		for (size_t i = 0; i < tmp.size(); i++)
 			env.push_back(const_cast<char*>(tmp[i].c_str()));
 		env.push_back(NULL);
-		for ( size_t i = 0; env[i]; i++ ) {
-			std::cerr << env[i] << std::endl;
-		}
+		//for ( size_t i = 0; env[i]; i++ ) {
+		//	std::cerr << env[i] << std::endl;
+		//}
 		execve(cmd[0], cmd, env.data());
 		perror("execve");
 	}
@@ -63,6 +63,8 @@ void	CGI::executeCGI()
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
 	int ret = 0;
+	sleep(2);
+	kill(child, SIGTERM);
 	waitpid(child, &ret, 0);
 	if (!fillResponseFrom(stdoutPipe[0]) && ret != 0)
 	{
@@ -134,8 +136,8 @@ std::vector<std::string> CGI::envCGI()
 	{
 		env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 	}
-	for (int i = 0; i < env.size(); i++)
-		std::cerr << "env[" << i << "]: " << env[i] << std::endl;
+	//for (int i = 0; i < env.size(); i++)
+	//	std::cerr << "env[" << i << "]: " << env[i] << std::endl;
 	return env;
 }
 

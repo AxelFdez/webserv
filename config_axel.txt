@@ -10,7 +10,7 @@ server    [
     listen   8081;
     host    127.0.0.1;
     server_name localhost;
-    body_size_max 1;
+    body_size_max 10000;
 
 
 #djfhgkjdfhgkjdfhgkjdgfjmjgmkjdfgh
@@ -22,6 +22,7 @@ server    [
 
         root /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1;
         methods         GET POST;
+        index           index.html;
         print_logs_request  on;
         download            on;
         download_folder     /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/depot;
@@ -29,7 +30,7 @@ server    [
 
     }
 
-    location  /side_pages/            {
+    location  /side_pages            {
 
         root   /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/side_pages;
         index  side_page.html index.htm;
@@ -39,12 +40,12 @@ server    [
         directory_listing      on;
     }
 
-    error_403              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/403.html;
-    error_404              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/404.html;
-    error_500              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/500.html;
-    error_502              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/502.html;
-    error_503              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/503.html;
-    error_504              /Users/chris/Desktop/webServ42/srcs/tools/website_1/errorPages/504.html;
+    error_403              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/403.html;
+    error_404              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/404.html;
+    error_500              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/500.html;
+    error_502              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/502.html;
+    error_503              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/503.html;
+    error_504              /Users/axelfernandez/ecole42/cursus42/webserv/srcs/tools/website_1/errorPages/504.html;
 
 ]
 
