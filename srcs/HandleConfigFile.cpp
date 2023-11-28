@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/27 15:56:04 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/28 14:26:30 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,17 @@ void HandleConfigFile::getLocations() {
                 _locations[i].push_back( std::map<std::string, std::vector<std::string> >() );
                 while ( *it != "}" ) {
                     
-                    if ( getKey(*it) == "location" ) {
-                        locationsTmp.push_back( splitStringToVector(getValue(*it))[0] );
+                    std::string key = getKey(*it);
+                    std::vector<std::string> values = splitStringToVector( getValue(*it) );
+
+                    if ( key == "location" ) {
+
+                        locationsTmp.push_back( values[0] );
+                        if ( values[0].size() > 1 && values[0].at(values[0].size() -1) == '/' ) {
+                            values[0].resize(values[0].size() -1);
+                        }
                     }
-                    _locations[i][iLocation].insert( std::pair<std::string, std::vector<std::string> >( getKey( *it ), splitStringToVector( getValue(*it) )) );
+                    _locations[i][iLocation].insert( std::pair<std::string, std::vector<std::string> >( key, values ));
                     it++;
                 }
                 iLocation++;
@@ -98,13 +105,13 @@ void HandleConfigFile::get_ports_bodySize() {
                     _ports[i].push_back( number );
                 }
             }
-            if ( (*it).find("body_size_max ", 0, 14 ) == 0 ) {
+            if ( (*it).find( "body_size_max ", 0, 14 ) == 0 ) {
 
                 std::string value = getValue( *it );
                 std::istringstream iss( value );
                 int number;
                 if (iss >> number ) {
-                    _body_size_max.push_back( number * 1000000 );
+                    _body_size_max.push_back( number +1 );
                 }
             }
         }
@@ -250,7 +257,7 @@ std::map<std::string, std::vector<std::string> > *HandleConfigFile::findLocation
     return mapReturn;
 }
 
-std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, std::string const& path, std::string const& toFind){
+std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, std::string const& path, std::string const& toFind) {
 
     static std::vector<std::string> emptyVector;
     std::map<std::string, std::vector<std::string> > *location = findLocation(serverNb, path);
@@ -258,6 +265,7 @@ std::vector<std::string> & HandleConfigFile::getLocationValues(size_t serverNb, 
 
         std::map<std::string, std::vector<std::string> >::iterator it = (*location).find( toFind );
         if ( it != (*location).end() ) {
+        
             return it->second;
         }
     }

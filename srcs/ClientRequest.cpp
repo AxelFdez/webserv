@@ -143,10 +143,10 @@ void ClientRequest::readRequest()
 		if (_pollSockets[i].revents & POLLIN \
 			&& _clients[_pollSockets[i].fd].getBodySize() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
-			int bufferSize = 1024;
+			int bufferSize = 65536;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
-			//std::cout << "request = " << request << std::endl;
+			// std::cout << "request = " << request << std::endl;
 			if (bytes <= 0)
 			{
 				perror("Error data reception");
@@ -188,6 +188,7 @@ void ClientRequest::readRequest()
 					}
 					else
 						_clients[_pollSockets[i].fd].setBodySize(_clients[_pollSockets[i].fd].getBodySize() + bytes);
+						// std::cout << _clients[_pollSockets[i].fd].getBodySize() << std::endl;
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 					if (doubleLineEndingFound(_clients[_pollSockets[i].fd].getRequest()) && !_clients[_pollSockets[i].fd].getReady())
 						_clients[_pollSockets[i].fd].setReady(true);

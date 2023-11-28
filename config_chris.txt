@@ -10,14 +10,14 @@ server   [
     listen   8081;
     host    127.0.0.1;
     server_name localhost;
-    body_size_max 1;
+    body_size_max 1000000;
 
 
 #djfhgkjdfhgkjdfhgkjdgfjmjgmkjdfgh
 
 
 
-    location   /        {
+    location   //       {
 
 
         root /Users/chris/Desktop/webServ42/srcs/tools/website_1;
@@ -75,7 +75,7 @@ server [
 
     }
 
-    location /etc {
+    location /etc/ {
 
         root   /website/html;
         index  index.html index.htm;
