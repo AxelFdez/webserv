@@ -3,19 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   HandleConfigFile.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
+/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/28 14:32:25 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/28 17:27:17 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HandleConfigFile.hpp"
 
-HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
+HandleConfigFile::HandleConfigFile( char* file, std::string cgi_path ) : getConfigFile( file, cgi_path ) {
 
     get_ports_bodySize();
     getLocations();
+    
 
     // print_config();
     // print_ports_bodySize();

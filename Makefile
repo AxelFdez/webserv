@@ -3,12 +3,13 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+         #
+#    By: chris <chris@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/26 11:05:14 by axfernan          #+#    #+#              #
-#    Updated: 2023/11/17 09:10:38 by axfernan         ###   ########.fr        #
+#    Updated: 2023/11/28 16:13:05 by chris            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 NAME = webserv
 

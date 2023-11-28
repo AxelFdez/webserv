@@ -1,9 +1,10 @@
 #include "../includes/Server.hpp"
 
-Server::Server(const std::string &configFile) : _config(const_cast<char *>(configFile.c_str()))
+Server::Server(const std::string &configFile, std::string cgi_path ) : _config(const_cast<char *>(configFile.c_str()), cgi_path )
 {
 	launchServer();
 	handleClients();
+
 }
 
 Server::~Server()

@@ -14,6 +14,8 @@
 #include "../includes/HandleConfigFile.hpp"
 #include "../includes/ClientRequest.hpp"
 
+
+
 class Config;
 class ClientRequest;
 class HandleConfigFile;
@@ -22,7 +24,7 @@ class Server
 {
 	public:
 
-		Server(const std::string &configFile);
+		Server(const std::string &configFile, std::string cgi_path);
 		~Server();
 
 		void launchServer();

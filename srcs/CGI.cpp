@@ -1,6 +1,7 @@
 #include "../includes/CGI.hpp"
 
-CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension)
+CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension, HandleConfigFile &config)
+// CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension)
 {
 	_path = path;
 	_uri = uri;
@@ -10,6 +11,7 @@ CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::st
 	//std:: cerr << "requestBody: " << _requestBody << std::endl;
 	_lineEnding = lineEnding;
 	_extension = extension;
+	_cgi_path = config.getCGI_PATH();
 	executeCGI();
 }
 
@@ -40,7 +42,8 @@ void	CGI::executeCGI()
 		chdir(getDirectory().c_str());
 		char *cmd[2];
 		if (_extension == ".php")
-			cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
+			cmd[0] = const_cast<char *>(_cgi_path.c_str());
+			// cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
 			//cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());

@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:41 by chris             #+#    #+#             */
-/*   Updated: 2023/11/24 09:49:49 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/28 17:19:51 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 getConfigFile::getConfigFile() {}
 getConfigFile::~getConfigFile() {}
 
-getConfigFile::getConfigFile( char* file ) {
-
+getConfigFile::getConfigFile( char* file, std::string cgi_path ) {
+    _cgi_path = cgi_path;
     _serverToken = false;
     _locationToken = false;
     _vectorIndice = -1;
@@ -214,6 +214,10 @@ std::string getConfigFile::getValue( std::string str ) {
         }
     }
     return str;
+}
+
+std::string getConfigFile::getCGI_PATH() const{
+    return _cgi_path;
 }
 
 void getConfigFile::checkBodySize( std::string line, size_t lineNumber ) {

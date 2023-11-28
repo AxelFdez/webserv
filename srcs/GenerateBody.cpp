@@ -223,7 +223,7 @@ bool GenerateBody::isCgiRequired(std::string extension)
 			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
 			return true;
 		}
-		CGI cgi(_root, _uri, _method, _request, _lineEnding, extension);
+		CGI cgi(_root, _uri, _method, _request, _lineEnding, extension, _config);
 		_errorCode = cgi.getErrorCode();
 		if (_errorCode >= 500)
 		{
