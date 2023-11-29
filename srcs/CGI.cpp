@@ -1,7 +1,6 @@
 #include "../includes/CGI.hpp"
 
 CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension, HandleConfigFile &config)
-// CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension)
 {
 	_path = path;
 	_uri = uri;
@@ -66,10 +65,10 @@ void	CGI::executeCGI()
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
 	int ret = 0;
-	sleep(2);
-	kill(child, SIGTERM);
+	// sleep(2);
+	// kill(child, SIGTERM);
 	waitpid(child, &ret, 0);
-	if (!fillResponseFrom(stdoutPipe[0]) && ret != 0)
+	if ( ret != 0 && !fillResponseFrom(stdoutPipe[0]) ) 
 	{
 		_errorCode = 500;
 		close(stdoutPipe[0]);

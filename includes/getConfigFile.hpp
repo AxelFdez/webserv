@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:28 by chris             #+#    #+#             */
-/*   Updated: 2023/11/28 17:19:12 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/29 09:13:35 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ class getConfigFile {
         bool                        _serverToken;
         bool                        _locationToken;
         size_t                      _vectorIndice;
-        std::string _cgi_path;
+        std::string                 _cgi_path;
 
         void checkServerScope( std::string line, size_t lineNumber );
         void checkLocationScope( std::string line, size_t lineNumber );

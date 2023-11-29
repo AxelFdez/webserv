@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/28 17:27:17 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/29 14:33:21 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ HandleConfigFile::HandleConfigFile( char* file, std::string cgi_path ) : getConf
 
     get_ports_bodySize();
     getLocations();
-    
-
     // print_config();
     // print_ports_bodySize();
     // print_locations();
@@ -151,7 +149,6 @@ std::vector<std::string> HandleConfigFile::splitStringToVector( std::string str 
 
 void HandleConfigFile::print_config() const{
 
-    // std::vector<std::vector<std::string> >::const_iterator it = config.begin();
     for ( int i = 0; i != config.size(); i++ ) {
 
         std::vector<std::string>::const_iterator it = config[i].begin();

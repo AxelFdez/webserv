@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:41 by chris             #+#    #+#             */
-/*   Updated: 2023/11/28 17:19:51 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/29 08:55:28 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,15 +79,11 @@ void getConfigFile::checkLocationScope( std::string line, size_t lineNumber ) {
 
 void getConfigFile::checkServerScope( std::string line, size_t lineNumber ) {
 
-
     if ( _vectorIndice == -1 && line != "server["
         || line == "]" && _serverToken == false
         || line == "server[" && _serverToken == true ) {
         throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + std::to_string( lineNumber )+ " getFile 1" ); RESET;
     }
-    // if ( _config_file.size() > 1 && line == "server[" && _config_file.back() == "]" ) {
-    //     throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + _config_file.back() + "' line: " + std::to_string( lineNumber -1)+ " getFile 3" ); RESET;
-    // }
     if ( line == "server[" ) {
         _serverToken = true;
     }
@@ -197,7 +193,6 @@ void getConfigFile::cleanLine( std::string & line, size_t lineNumber ) {
         }
     }
 }
-
 
 std::string getConfigFile::getValue( std::string str ) {
 

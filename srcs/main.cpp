@@ -37,15 +37,13 @@ static std::string find_php_cgi( char** envp ) {
 				vecPaths.push_back(line + "/php-cgi");
 			}
 		}
-
 	}
 	for ( size_t i = 0; i < vecPaths.size(); i++ ) {
 
-		if ( access( vecPaths[i].c_str(), X_OK ) == 0) {
+		if ( access( vecPaths[i].c_str(), X_OK ) == 0 ) {
 			return vecPaths[i];
 		}
 	}
-	throw std::invalid_argument( "Error: php-cgi need to be installed to use webserv" );
 	return "";
 }
 
