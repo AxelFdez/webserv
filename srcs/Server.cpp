@@ -99,7 +99,7 @@ in_addr_t Server::convIpToLong(const std::string& ipAddress) {
         if (!getline(iss, octet, '.') || !isdigit(octet[0])) {
             throw std::invalid_argument("Adresse IP non valide");
         }
-        int octetValue = std::stoi(octet);
+        int octetValue = atoi(octet.c_str());
         if (octetValue < 0 || octetValue > 255) {
             throw std::invalid_argument("Adresse IP non valide");
         }

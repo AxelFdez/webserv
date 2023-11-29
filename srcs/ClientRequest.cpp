@@ -3,6 +3,7 @@
 volatile sig_atomic_t signalReceived = 0;
 
 void signalHandler(int signal) {
+	(void)signal;
     signalReceived = 1;
 }
 
@@ -139,14 +140,12 @@ void ClientRequest::readRequest()
 {
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		//std::cout << _pollSockets[i].revents << std::endl;
 		if (_pollSockets[i].revents & POLLIN \
 			&& _clients[_pollSockets[i].fd].getBodySize() <= _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
 		{
 			int bufferSize = 65536;
 			char request[bufferSize];
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
-			// std::cout << "request = " << request << std::endl;
 			if (bytes <= 0)
 			{
 				perror("Error data reception");
@@ -188,13 +187,9 @@ void ClientRequest::readRequest()
 					}
 					else
 						_clients[_pollSockets[i].fd].setBodySize(_clients[_pollSockets[i].fd].getBodySize() + bytes);
-						// std::cout << _clients[_pollSockets[i].fd].getBodySize() << std::endl;
 					_clients[_pollSockets[i].fd].setRequest(truncRequest);
 					if (doubleLineEndingFound(_clients[_pollSockets[i].fd].getRequest()) && !_clients[_pollSockets[i].fd].getReady())
 						_clients[_pollSockets[i].fd].setReady(true);
-					//std::cout << std::boolalpha << _clients[_pollSockets[i].fd].getReady() << std::endl;
-					//std::cout << "bodySize = " << _clients[_pollSockets[i].fd].getBodySize() << std::endl;
-					//std::cout << "bodySizeMax = " << _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()) << std::endl;
 				}
 			}
 		}
@@ -205,22 +200,22 @@ void ClientRequest::sendResponse()
 {
 	for (size_t i = _totalServerSockets; i < _pollSockets.size(); i++)
 	{
-		if (((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) && _clients[_pollSockets[i].fd].getReady() \
-			|| (_pollSockets[i].revents & POLLOUT) && _clients[_pollSockets[i].fd].getBodySize() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer()))
+		if ((((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) && _clients[_pollSockets[i].fd].getReady()) \
+			|| ((_pollSockets[i].revents & POLLOUT) && _clients[_pollSockets[i].fd].getBodySize() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer())))
 		{
 			//std::cout <<  std::boolalpha << _clients[_pollSockets[i].fd].getReady() << std::endl;
 			if (_clients[_pollSockets[i].fd].getResponse().empty())
 			{
 				_clients[_pollSockets[i].fd].setBytesSent(0);
 				MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			//	displayRequest(response.getResponse(), 1);
+				//displayRequest(response.getResponse(), 1);
 				_clients[_pollSockets[i].fd].setResponse(response.getResponse());
 				response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			}
 			std::string partialResponse = _clients[_pollSockets[i].fd].getResponse().substr(_clients[_pollSockets[i].fd].getBytesSent(), 1024);
 			//std::cout << "partialResponse = " << partialResponse << std::endl;
-			size_t bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
-			if (bytes < 0)
+			int bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
+			if (bytes <= 0)
 			{
 				perror("Error data sending");
 				close(_pollSockets[i].fd);

@@ -4,16 +4,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstdio>
 #include <dirent.h>
 #include <csignal>
-
-#include "../includes/HandleConfigFile.hpp"
-#include "../includes/ClientRequest.hpp"
-
+#include <cstring>
+#include "HandleConfigFile.hpp"
+#include "ClientRequest.hpp"
+#include "utils.hpp"
 
 
 class Config;
@@ -36,7 +37,7 @@ class Server
 
 		Server( Server const& src );
 		Server & operator=( Server const& rhs );
-	
+
 		HandleConfigFile				 _config;
 		std::vector<std::vector<int> >	_socket;
 		struct sockaddr_in				_address;

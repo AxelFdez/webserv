@@ -3,17 +3,17 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: chris <chris@student.42.fr>                +#+  +:+       +#+         #
+#    By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/26 11:05:14 by axfernan          #+#    #+#              #
-#    Updated: 2023/11/28 16:13:05 by chris            ###   ########.fr        #
+#    Updated: 2023/11/29 11:15:46 by axfernan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = webserv
 
-FLAGS =  -std=c++98 -g -fsanitize=address #-Werror -Wextra -Wall
+FLAGS =  -std=c++98 -Werror -Wextra -Wall #-g -fsanitize=address
 
 SRC = $(wildcard srcs/*.cpp)
 HDR = $(wildcard includes/*.hpp)

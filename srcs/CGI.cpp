@@ -42,8 +42,6 @@ void	CGI::executeCGI()
 		char *cmd[2];
 		if (_extension == ".php")
 			cmd[0] = const_cast<char *>(_cgi_path.c_str());
-			// cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
-			//cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
@@ -127,7 +125,7 @@ std::vector<std::string> CGI::envCGI()
 	if (_method == "POST")
 	{
     	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
-    	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
+    	env.push_back("CONTENT_LENGTH=" + to_string(_request["Body"].length() - 1));
     }
 	env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
 	if (_uri.find('?', 0) != std::string::npos && _method == "GET")
@@ -138,8 +136,6 @@ std::vector<std::string> CGI::envCGI()
 	{
 		env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 	}
-	//for (int i = 0; i < env.size(); i++)
-	//	std::cerr << "env[" << i << "]: " << env[i] << std::endl;
 	return env;
 }
 

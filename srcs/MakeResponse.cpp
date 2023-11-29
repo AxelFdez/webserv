@@ -2,7 +2,7 @@
 
 MakeResponse::MakeResponse(std::vector<char> binaryRequest, int serverNo, HandleConfigFile &config) : _binaryRequest(binaryRequest), _serverNo(serverNo), _config(config)
 {
-	for (int i = 0; i < binaryRequest.size(); i++)
+	for (size_t i = 0; i < binaryRequest.size(); i++)
 		_request.push_back(binaryRequest[i]);
 	_request.push_back('\0');
 	// displayRequest(_request, 0);
@@ -95,6 +95,7 @@ void MakeResponse::access_logs( std::string IP ) {
 		else
 			std::cerr << B_GRAY << token[i] << " " << "-" << RESET << std::endl;
 	}
+	std::cerr << std::endl;
 }
 
 void MakeResponse::getLogsInfoToMap( std::map<std::string, std::string> & map ) {

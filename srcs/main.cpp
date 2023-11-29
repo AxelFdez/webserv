@@ -1,19 +1,6 @@
 #include "../includes/HandleConfigFile.hpp"
 #include "../includes/Server.hpp"
 
-static int	ft_strncmp(const char *s1, const char *s2, size_t n) {
-
-	size_t	i = 0;
-
-	if (n <= 0)
-		return (0);
-	while ((((unsigned char *)s1)[i] != '\0'
-		&& ((unsigned char *)s2)[i] != '\0')
-			&& (((unsigned char*)s1)[i] == ((unsigned char*)s2)[i])
-			&& (i < n - 1))
-		i++;
-	return (((unsigned char *)s1)[i] - ((unsigned char *)s2)[i]);
-}
 
 static std::string find_php_cgi( char** envp ) {
 
@@ -21,7 +8,7 @@ static std::string find_php_cgi( char** envp ) {
 	std::vector<std::string> vecPaths;
 	for ( int i = 0; envp[i] != NULL; i++ ) {
 
-		if ( ft_strncmp(envp[i], "PATH=", 5 ) == 0 ) {
+		if ( strncmp(envp[i], "PATH=", 5 ) == 0 ) {
 			paths = envp[i] + 5;
 			for ( size_t j = 0; j < paths.length(); j++ ) {
 
@@ -50,9 +37,10 @@ static std::string find_php_cgi( char** envp ) {
 int main (int argc, char **argv, char **envp)
 {
 	if (argc > 2)
+	{
+		std::cerr << "Error: too many arguments" << std::endl;
 		return (1);
-
-	// std::cout << find_php_cgi( envp ) << std::endl;
+	}
 
 	std::string configFile;
 	if (argc == 1)
