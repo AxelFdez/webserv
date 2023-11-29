@@ -29,6 +29,7 @@ if (isset($_COOKIE['nom']))
     $nom = $_COOKIE['nom'];
     echo htmlspecialchars($nom) . "a été trouvé dans les cookies";
 }
+
 ?>
 </body>
 </html>

@@ -6,7 +6,7 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/29 11:02:35 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:36:37 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,12 +216,6 @@ std::string HandleConfigFile::getServerValues(size_t serverNb, std::string const
 
     std::vector<std::string>::iterator it = config[serverNb].begin();
     for ( ; it != config[serverNb].end(); it++ ) {
-
-        if ( (*it).find("location", 0, 8 ) == 0 ) {
-            while ( *it != "}" ) {
-                it++;
-            }
-        }
         if ( (*it).find(toFind, 0) == 0 ) {
             return getValue(*it);
         }
