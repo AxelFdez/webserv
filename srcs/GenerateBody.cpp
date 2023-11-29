@@ -34,7 +34,7 @@ void GenerateBody::handleRequest()
 	}
 
 	defineRoot();
-	std::cout << "_root = "<< _root << std::endl;
+	//std::cout << "_root = "<< _root << std::endl;
 	if (!isPathAccess())
 	{
 		return;
@@ -69,7 +69,7 @@ bool GenerateBody::checkRedirection()
 	{
 		_errorCode = 301;
 		_responseBody = generateErrorPage(_errorCode);
-		_responseHeader = "Location: " + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + std::to_string(_responseBody.size());
+		_responseHeader = "Location: " + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
 		return false;
 	}
 	return true;
@@ -90,24 +90,14 @@ void cutDbSlash( std::string & str ) {
 
 void GenerateBody::defineRoot()
 {
-	std::cout << "path = " << _path << std::endl;
-	std::cout << "location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;;
-	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0]; //+ _path.substr(_path.find_last_of("/")); // coller toute la fin de l'uri apres le root.
+	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
 	std::string pathTmp2(_path);
-	//std::cout <<  "pathtmp2 = " << pathTmp2 << std::endl;
-	//std::cout <<  "ressourcepath = " << ressource_path << std::endl;
+
 	if (ressource_path[ressource_path.size() - 1] != '/')
 		ressource_path += "/";
 	std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
 	cutDbSlash(pathTmp);
-	//size_t pos = ressource_path.find(_path);
-	//std::cout << "pos = " << pos << std::endl;
-	//if (pos != std::string::npos)
-	// if (pathTmp[pathTmp.size() - 1] != '/')
-	// 	pathTmp += "/";
-	//std::cout <<  "pathtmp = " << pathTmp << std::endl;
 	ressource_path = pathTmp;
-	std::cout <<  "ressourcepath = " << ressource_path << std::endl;
 	if (isFile(ressource_path.c_str()))
 	{
 		_root = ressource_path;
@@ -152,7 +142,7 @@ bool GenerateBody::checkDirectoryListing()
 		{
 			_errorCode = 404;
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 		else if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
@@ -160,14 +150,14 @@ bool GenerateBody::checkDirectoryListing()
 			puts("directory_listing empty");
 			_errorCode = 403;
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 		else if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "on")
 		{
 			_responseBody = generateListingDirectoryPage(_root, "", true);
 			_errorCode = 200;
-			_responseHeader = "Content_Type: text/html\nContent-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content_Type: text/html\nContent-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 	}
@@ -180,7 +170,7 @@ bool GenerateBody::isPathAccess()
 	{
 		_errorCode = 404;
 		_responseBody = generateErrorPage(_errorCode);
-		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+		_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 		return false;
 	}
 	else if (access(_root.c_str(), R_OK) == -1)
@@ -188,7 +178,7 @@ bool GenerateBody::isPathAccess()
 
 		_errorCode = 403;
 		_responseBody = generateErrorPage(_errorCode);
-		_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+		_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 		return false;
 	}
 	return true;
@@ -203,7 +193,7 @@ bool GenerateBody::deleteMethod()
 			perror( "Error deleting file" );
 			_errorCode = 403;
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 		_errorCode = 204;
@@ -220,15 +210,15 @@ bool GenerateBody::isCgiRequired(std::string extension)
 		{
 			_errorCode = 405;
 			_responseBody = generateErrorPage(405);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
-		CGI cgi(_root, _uri, _method, _request, _lineEnding, extension);
+		CGI cgi(_root, _uri, _method, _request, _lineEnding, extension, _config);
 		_errorCode = cgi.getErrorCode();
 		if (_errorCode >= 500)
 		{
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 		_responseBody = cgi.getResponseBody();
@@ -249,7 +239,7 @@ bool GenerateBody::uploadAsked()
 				_errorCode = 400;
 				std::cout << ("empty body") << std::endl;
 				_responseBody = generateErrorPage(_errorCode);
-				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+				_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 				return true;
 			}
 			std::string filename = _request["Body"].substr(_request["Body"].find("filename=") + 10);
@@ -259,7 +249,7 @@ bool GenerateBody::uploadAsked()
 				_errorCode = 400;
 				std::cout << ("empty filename") << std::endl;
 				_responseBody = generateErrorPage(_errorCode);
-				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+				_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 				return true;
 			}
 			std::vector<char> binaryData;
@@ -288,10 +278,17 @@ bool GenerateBody::uploadAsked()
 				&& isDir(_config.getLocationValues(_serverNo, _path, "download_folder")[0].c_str()))
 			{
 				std::ofstream file;
+				std::string filePath;
 				if (_config.getLocationValues(_serverNo, _path, "download_folder")[0][_config.getLocationValues(_serverNo, _path, "download_folder")[0].size() - 1] != '/')
-					file.open(_config.getLocationValues(_serverNo, _path, "download_folder")[0] + "/" + filename, std::ios::binary);
+				{
+					filePath = _config.getLocationValues(_serverNo, _path, "download_folder")[0] + "/" + filename;
+					file.open(filePath.c_str(), std::ios::binary);
+				}
 				else
-					file.open(_config.getLocationValues(_serverNo, _path, "download_folder")[0] + filename, std::ios::binary);
+				{
+					filePath = _config.getLocationValues(_serverNo, _path, "download_folder")[0] + filename;
+					file.open(filePath.c_str(), std::ios::binary);
+				}
 				if (file.is_open())
 				{
 					for (size_t i = 0; i < binaryData.size(); i++)
@@ -304,7 +301,7 @@ bool GenerateBody::uploadAsked()
 				{
 					_errorCode = 500;
 					_responseBody = generateErrorPage(_errorCode);
-					_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+					_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 					return true;
 				}
 			}
@@ -312,19 +309,19 @@ bool GenerateBody::uploadAsked()
 			{
 				_errorCode = 403;
 				_responseBody = generateErrorPage(_errorCode);
-				_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+				_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 				return true;
 			}
 			_errorCode = 201;
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 		else
 		{
 			_errorCode = 403;
 			_responseBody = generateErrorPage(_errorCode);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
 	}
@@ -333,7 +330,6 @@ bool GenerateBody::uploadAsked()
 
 bool	GenerateBody::requestValid()
 {
-	std::cout << "host = " << _requestHost << std::endl;
 	if ((_method != "GET" && _method != "POST" && _method != "DELETE") \
 		|| _protocol != "HTTP/1.1" || *_uri.begin() != '/' || _requestHost.empty())
 	{
@@ -349,7 +345,7 @@ bool	GenerateBody::requestValid()
 		_responseBody = generateErrorPage(404);
 		return false;
 	}
-	else if (_requestBody.size() > _config.getBodySizeMax(_serverNo))
+	else if (_requestBody.size() > static_cast<size_t>(_config.getBodySizeMax(_serverNo)))
 	{
 		_errorCode = 413;
 		_responseBody = generateErrorPage(413);
@@ -505,7 +501,7 @@ bool GenerateBody::checkAuthorizedMethods()
 		{
 			_errorCode = 405;
 			_responseBody = generateErrorPage(405);
-			_responseHeader = "Content-Length: " + std::to_string(_responseBody.size());
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return false;
 		}
 	}

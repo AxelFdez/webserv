@@ -29,7 +29,7 @@ class HandleConfigFile : public getConfigFile {
 
     public:
         HandleConfigFile();
-        HandleConfigFile( char* file );
+        HandleConfigFile( char* file, std::string cgi_path );
         virtual ~HandleConfigFile();
 
         // Getters

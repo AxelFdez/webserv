@@ -7,7 +7,8 @@ class CGI
 {
 	public:
 
-		CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension);
+		CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension, HandleConfigFile &config);
+		// CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension);
 		~CGI();
 		void						executeCGI();
 		std::string					getDirectory();
@@ -24,6 +25,7 @@ class CGI
 		CGI & operator=( CGI const& rhs );
 
 		int _errorCode;
+		std::string _cgi_path;
 		std::string _responseBody;
 		std::string _requestBody;
 		std::string _path;
@@ -33,5 +35,4 @@ class CGI
 		std::string	_cgiHeader;
 		std::string	_extension;
 		std::map<std::string, std::string> _request;
-
 };

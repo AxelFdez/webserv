@@ -6,16 +6,17 @@
 /*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/28 14:32:25 by axfernan         ###   ########.fr       */
+/*   Updated: 2023/11/29 11:02:35 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/HandleConfigFile.hpp"
 
-HandleConfigFile::HandleConfigFile( char* file ) : getConfigFile( file ) {
+HandleConfigFile::HandleConfigFile( char* file, std::string cgi_path ) : getConfigFile( file, cgi_path ) {
 
     get_ports_bodySize();
     getLocations();
+
 
     // print_config();
     // print_ports_bodySize();
@@ -89,7 +90,7 @@ void HandleConfigFile::get_ports_bodySize() {
             _body_size_max[1] contain the _body_size_max value of server[] 2
     */
 
-    std::vector<std::vector<std::string> >::iterator it = config.begin();
+    //std::vector<std::vector<std::string> >::iterator it = config.begin();
     for ( size_t i = 0; i != config.size(); i++ ) {
 
         _ports.push_back( std::vector<int>() );
@@ -151,7 +152,7 @@ std::vector<std::string> HandleConfigFile::splitStringToVector( std::string str 
 void HandleConfigFile::print_config() const{
 
     // std::vector<std::vector<std::string> >::const_iterator it = config.begin();
-    for ( int i = 0; i != config.size(); i++ ) {
+    for ( size_t i = 0; i != config.size(); i++ ) {
 
         std::vector<std::string>::const_iterator it = config[i].begin();
         for ( ; it != config[i].end(); it++ ) {
@@ -163,9 +164,9 @@ void HandleConfigFile::print_config() const{
 
 void      HandleConfigFile::print_locations() const{
 
-    for ( int i = 0; i != _locations.size(); i++ ) {
+    for ( size_t i = 0; i != _locations.size(); i++ ) {
 
-        for ( int j = 0; j != _locations[i].size(); j++ ) {
+        for ( size_t j = 0; j != _locations[i].size(); j++ ) {
 
             std::cout << B_GREEN <<"server[" << i << "]" << "location[" << j << "]" << RESET << std::endl;
 
@@ -184,13 +185,13 @@ void      HandleConfigFile::print_locations() const{
 
 void      HandleConfigFile::print_ports_bodySize() const{
 
-    for ( int i = 0; i != _ports.size(); i++ ) {
-        for ( int j = 0; j != _ports[i].size(); j++ ) {
+    for ( size_t i = 0; i != _ports.size(); i++ ) {
+        for ( size_t j = 0; j != _ports[i].size(); j++ ) {
             std::cout << "server " << i+1 << " ports = " << _ports[i][j] << std::endl;
         }
         std::cout << std::endl;
     }
-    for ( int i = 0; i != _body_size_max.size(); i++ ) {
+    for ( size_t i = 0; i != _body_size_max.size(); i++ ) {
 
         std::cout << "server " << i+1<< " bodySize = " << _body_size_max[i] << std::endl;
     }
@@ -276,7 +277,7 @@ std::string const HandleConfigFile::getErrorPage( size_t serverNb, int errorCode
 
     std::string errorPath;
     if ( serverNb < config.size() ) {
-        std::string errorNb = std::to_string( errorCode );
+        std::string errorNb = to_string( errorCode );
 
         for ( size_t i = 0; i < config[serverNb].size(); i++ ) {
 

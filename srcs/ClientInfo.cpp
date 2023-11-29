@@ -41,11 +41,11 @@ std::string ClientInfo::getResponse() {
 	return _response;
 }
 
-void    ClientInfo::setBytesSent( int bytes ) {
+void    ClientInfo::setBytesSent( size_t bytes ) {
 	_bytesSent = bytes;
 }
 
-int ClientInfo::getBytesSent() {
+size_t ClientInfo::getBytesSent() {
 	return _bytesSent;
 }
 

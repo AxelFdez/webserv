@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   getConfigFile.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
+/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:28 by chris             #+#    #+#             */
-/*   Updated: 2023/11/23 14:42:43 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/29 10:53:34 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,15 @@
 #include <string>
 #include "policeColor.hpp"
 
+#include "utils.hpp"
 
 class getConfigFile {
 
     public:
-        getConfigFile( char* file );
+        getConfigFile( char* file, std::string cgi_path );
         virtual ~getConfigFile();
         virtual std::string getValue( std::string str );
+        virtual std::string getCGI_PATH() const;
         // class ConfigException : public std::exception
 	    // {
 		//     public :
@@ -51,7 +53,8 @@ class getConfigFile {
 
         bool                        _serverToken;
         bool                        _locationToken;
-        size_t                      _vectorIndice;
+        int                         _vectorIndice;
+        std::string                 _cgi_path;
 
         void checkServerScope( std::string line, size_t lineNumber );
         void checkLocationScope( std::string line, size_t lineNumber );
@@ -64,5 +67,5 @@ class getConfigFile {
         void checkMethods( std::string line, size_t lineNumber );
 
         void trimSpaces( std::string& line );
-        void cleanLine( std::string & line, size_t lineNumber );
+        void cleanLine( std::string & line );
 };

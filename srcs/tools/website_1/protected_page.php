@@ -1,10 +1,12 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-    header("Location: login.php");
-    exit;
-}
+echo $_SESSION['logged_in'];
 
-echo '<img src="img.png" alt="Image Protégée">';
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
+    echo '<img src="img.png" alt="Image Protégée">';
+}
+else {
+    echo "Vous n'êtes pas connecté.";
+}
 ?>

@@ -1,6 +1,7 @@
 #include "../includes/CGI.hpp"
 
-CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension)
+CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension, HandleConfigFile &config)
+// CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::string, std::string> request, std::string lineEnding, std::string extension)
 {
 	_path = path;
 	_uri = uri;
@@ -10,6 +11,7 @@ CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::st
 	//std:: cerr << "requestBody: " << _requestBody << std::endl;
 	_lineEnding = lineEnding;
 	_extension = extension;
+	_cgi_path = config.getCGI_PATH();
 	executeCGI();
 }
 
@@ -40,8 +42,7 @@ void	CGI::executeCGI()
 		chdir(getDirectory().c_str());
 		char *cmd[2];
 		if (_extension == ".php")
-			//cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
-			cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
+			cmd[0] = const_cast<char *>(_cgi_path.c_str());
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
@@ -63,8 +64,8 @@ void	CGI::executeCGI()
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
 	int ret = -1;
-	sleep(1);
-	kill(child, SIGTERM);
+	// sleep(1);
+	// kill(child, SIGTERM);
 	waitpid(child, &ret, 0);
 	if (!fillResponseFrom(stdoutPipe[0]) && ret != 0)
 	{
@@ -125,7 +126,7 @@ std::vector<std::string> CGI::envCGI()
 	if (_method == "POST")
 	{
     	env.push_back("CONTENT_TYPE=" + _request["Content-Type"].substr(0, _request["Content-Type"].size() - 1));
-    	env.push_back("CONTENT_LENGTH=" + std::to_string(_request["Body"].length() - 1));
+    	env.push_back("CONTENT_LENGTH=" + to_string(_request["Body"].length() - 1));
     }
 	env.push_back(("SCRIPT_FILENAME=") + _uri.substr(1, (_uri.find('?', 0) - 1)));
 	if (_uri.find('?', 0) != std::string::npos && _method == "GET")
@@ -136,8 +137,6 @@ std::vector<std::string> CGI::envCGI()
 	{
 		env.push_back(("HTTP_COOKIE=") + _request["Cookie"]);
 	}
-	//for (int i = 0; i < env.size(); i++)
-	//	std::cerr << "env[" << i << "]: " << env[i] << std::endl;
 	return env;
 }
 

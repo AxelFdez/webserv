@@ -1,9 +1,10 @@
 #include "../includes/Server.hpp"
 
-Server::Server(const std::string &configFile) : _config(const_cast<char *>(configFile.c_str()))
+Server::Server(const std::string &configFile, std::string cgi_path ) : _config(const_cast<char *>(configFile.c_str()), cgi_path )
 {
 	launchServer();
 	handleClients();
+
 }
 
 Server::~Server()
@@ -98,7 +99,7 @@ in_addr_t Server::convIpToLong(const std::string& ipAddress) {
         if (!getline(iss, octet, '.') || !isdigit(octet[0])) {
             throw std::invalid_argument("Adresse IP non valide");
         }
-        int octetValue = std::stoi(octet);
+        int octetValue = atoi(octet.c_str());
         if (octetValue < 0 || octetValue > 255) {
             throw std::invalid_argument("Adresse IP non valide");
         }

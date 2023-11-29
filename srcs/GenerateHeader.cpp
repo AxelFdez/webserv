@@ -17,18 +17,18 @@ void GenerateHeader::headerFormat()
 	stat(_path.c_str(), &fileStat);
 	char lastModifDate[80];
     strftime(lastModifDate, sizeof(lastModifDate), "%a, %d %b %Y %H:%M:%S GMT", localtime(&fileStat.st_mtime));
-	std::time_t now = std::time(NULL);
+	time_t now = time(NULL);
 	char creationDate[80];
     strftime(creationDate, sizeof(creationDate), "%a, %d %b %Y %H:%M:%S GMT", localtime(&now));
 
-	_header = "HTTP/1.1 " + std::to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
+	_header = "HTTP/1.1 " + to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
 	+ "Server: webserv/chmassa-axfernan\n" \
 	+ "Date: " + creationDate + "\n" \
 	+ "Last-Modified: " + lastModifDate + "\n";
 	if (_cgiHeader.empty())
 	{
 		_header.append("Content-Type: " + getContentType(_path) + "\n");
-		_header.append("Content-Length: " + std::to_string(fileStat.st_size));
+		_header.append("Content-Length: " + to_string(fileStat.st_size));
 	}
 	else
 	{
@@ -39,11 +39,11 @@ void GenerateHeader::headerFormat()
 void GenerateHeader::errorHeaderFormat()
 {
 	ErrorCode errorMessage;
-	std::time_t now = std::time(NULL);
+	time_t now = time(NULL);
 	char creationDate[80];
     strftime(creationDate, sizeof(creationDate), "%a, %d %b %Y %H:%M:%S GMT", localtime(&now));
 
-	_header = "HTTP/1.1 " + std::to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
+	_header = "HTTP/1.1 " + to_string(_code) + " " + errorMessage.getMessage(_code) + "\n" \
 	+ "Server: webserv/chmassa-axfernan\n" \
 	+ "Date: " + creationDate + "\n" \
 	+ "Content-Type: text/html\n"\
