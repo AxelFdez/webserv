@@ -40,8 +40,8 @@ void	CGI::executeCGI()
 		chdir(getDirectory().c_str());
 		char *cmd[2];
 		if (_extension == ".php")
-			cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
-			//cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
+			//cmd[0] = const_cast<char *>("/Users/chris/.brew/bin/php-cgi");
+			cmd[0] = const_cast<char *>("/opt/homebrew/bin/php-cgi");
 		else if (_extension == ".py" || _extension == ".sh")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
@@ -62,8 +62,8 @@ void	CGI::executeCGI()
 
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
-	int ret = 0;
-	sleep(2);
+	int ret = -1;
+	sleep(1);
 	kill(child, SIGTERM);
 	waitpid(child, &ret, 0);
 	if (!fillResponseFrom(stdoutPipe[0]) && ret != 0)

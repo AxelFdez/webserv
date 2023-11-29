@@ -29,9 +29,6 @@ if (isset($_COOKIE['nom']))
     $nom = $_COOKIE['nom'];
     echo htmlspecialchars($nom) . "a été trouvé dans les cookies";
 }
-while (1) {
-    echo "Je suis dans une boucle infinie";
-}
 ?>
 </body>
 </html>

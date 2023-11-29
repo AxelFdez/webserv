@@ -213,7 +213,7 @@ void ClientRequest::sendResponse()
 			{
 				_clients[_pollSockets[i].fd].setBytesSent(0);
 				MakeResponse response(_clients[_pollSockets[i].fd].getRequest(), _clients[_pollSockets[i].fd].getBelongOfServer(), _config);
-			//	displayRequest(response.getResponse(), 1);
+				displayRequest(response.getResponse(), 1);
 				_clients[_pollSockets[i].fd].setResponse(response.getResponse());
 				response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			}
