@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:41 by chris             #+#    #+#             */
-/*   Updated: 2023/11/29 15:00:52 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/30 11:18:44 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ getConfigFile::getConfigFile() {}
 getConfigFile::~getConfigFile() {}
 
 getConfigFile::getConfigFile( char* file, std::string cgi_path ) {
+
     _cgi_path = cgi_path;
     _serverToken = false;
     _locationToken = false;
@@ -55,7 +56,7 @@ getConfigFile::getConfigFile( char* file, std::string cgi_path ) {
         }
         argFile.close();
         if ( _serverToken == true ) {
-            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: ']' missing! line: " + to_string( lineNumber )+ " getFile 3" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: ']' missing! line: " + to_string( lineNumber ) + RESET );
         }
     }
     else { throw std::invalid_argument( "argument file can't be read" ); }
@@ -64,7 +65,7 @@ getConfigFile::getConfigFile( char* file, std::string cgi_path ) {
 void getConfigFile::checkLocationScope( std::string line, size_t lineNumber ) {
 
     if ( line.find( "location", 0, 8 ) == 0 && line.at(line.size() -1) == '{' &&  _locationToken == true ) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + to_string( lineNumber )+ " checkLocationScope 1" RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + to_string( lineNumber ) + RESET );
     }
     if ( line.find( "location", 0, 8 ) == 0 && line.at(line.size() -1) == '{') {
         _locationToken = true;
@@ -73,16 +74,16 @@ void getConfigFile::checkLocationScope( std::string line, size_t lineNumber ) {
         _locationToken = false;
     }
     else if ( line == "}" &&  _locationToken == false ) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + to_string( lineNumber -1 )+ " checkLocationScope 2" RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + to_string( lineNumber -1 ) + RESET );
     }
 }
 
 void getConfigFile::checkServerScope( std::string line, size_t lineNumber ) {
 
-    if ( (_vectorIndice == -1 && line != "server[")
+    if ( ( _vectorIndice == -1 && line != "server[")
         || (line == "]" && _serverToken == false)
         || (line == "server[" && _serverToken == true )) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + std::to_string( lineNumber )+ " getFile 1" ); RESET;
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + std::to_string( lineNumber ) + RESET );
     }
     if ( line == "server[" ) {
         _serverToken = true;
@@ -97,18 +98,18 @@ void getConfigFile::checkSyntax_server_location( std::string & line, size_t line
     if ( line.find( "server", 0, 5 ) == 0 && line.at(line.size() -1) != ';' ) {
 
         if ( line.at(line.size()-1) != '[' ) {
-            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '[' missing! line: " + to_string( lineNumber )+ " check check Syntax 1" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '[' missing! line: " + to_string( lineNumber ) + RESET );
         }
         for ( size_t i = 6; i != line.size() -1; i++ ) {
             if ( !isspace(line[i]) ) {
-                throw std::invalid_argument( RED "Error:\nconfig file: syntax error: " + line + " line: " + to_string( lineNumber )+ " check check Syntax 2" RESET);
+                throw std::invalid_argument( RED "Error:\nconfig file: syntax error: " + line + " line: " + to_string( lineNumber ) + RESET );
             }
         }
         line.erase(std::remove_if(line.begin(), line.end(), isspace ), line.end());
     }
     if ( line.find( "location", 0, 8 ) == 0 && line.at(line.size() -1) != ';' ) {
         if ( line.at(line.size()-1) != '{' ) {
-            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '{' missing! line: " + to_string( lineNumber )+ " check check Syntax 3" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '{' missing! line: " + to_string( lineNumber ) + RESET );
         }
     }
 }
@@ -118,7 +119,7 @@ void getConfigFile::checkSemicolon( std::string const& line, size_t lineNumber )
     if (  (line.find("]") != std::string::npos || line.find("}") != std::string::npos) ) {
 
         if ( (line.size() != 1) ){
-            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + " check Semicolon 1" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + RESET );
         }
         return;
     }
@@ -126,31 +127,33 @@ void getConfigFile::checkSemicolon( std::string const& line, size_t lineNumber )
         || ( line.find( "location", 0, 8 ) == 0 && line.find("{")  != std::string::npos )) {
 
     if ( line.find(";") != std::string::npos ) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + " check Semicolon 2" RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + RESET );
     }
         return;
     }
     else if ( line.at(line.size()-1) == ';' && count( line.begin(), line.end(), ';' ) == 1 ) {
         return;
     }
-    else { throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + " check Semicolon 3" RESET); }
+    else {
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + RESET );
+    }
 }
 
 void getConfigFile::checkValue( std::string line, size_t lineNumber ) {
 
     if (( line.find("index", 0, 5) == 0 && !isspace(line[5])) || (line.find("methods", 0, 7) == 0 && !isspace(line[7]) )) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: chValue1 " + to_string( lineNumber ) + RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: chValue1 " + to_string( lineNumber ) + RESET );
     }
     else if ( line != "server[" && line != "]" && line != "}" ) {
 
         if ( !(find_if( line.begin(), line.end(), ::isspace ) != line.end()) )   {
-            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: chValue2 " + to_string( lineNumber ) + RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: syntax error: line: " + to_string( lineNumber ) + RESET );
         }
     }
     if ( line.find("download ", 0, 9) == 0 || line.find("directory_listing", 0, 17) == 0 ) {
         line = getValue( line );
         if (line != "on" && line != "off" ) {
-            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: must be on/off line: " + to_string( lineNumber ) + RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: must be on/off line: " + to_string( lineNumber ) + RESET );
         }
     }
     if ( line.find("listen", 0, 6 ) == 0 ) {
@@ -219,7 +222,7 @@ void getConfigFile::checkBodySize( std::string line, size_t lineNumber ) {
 
     std::string value = getValue( line );
     if ( value.empty() ) {
-        throw std::invalid_argument( RED "Error:\nconfig file: no value: 'body_size_max directive' line: " + to_string( lineNumber ) + " check listen" RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: no value: 'body_size_max directive' line: " + to_string( lineNumber ) + RESET );
     }
     else {
         std::istringstream iss( value );
@@ -229,7 +232,7 @@ void getConfigFile::checkBodySize( std::string line, size_t lineNumber ) {
                 return;
         }
         else {
-            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'body_size_max directive' line: " + to_string( lineNumber ) + " check listen" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'body_size_max directive' line: " + to_string( lineNumber ) + RESET );
         }
     }
 }
@@ -250,7 +253,7 @@ void getConfigFile::checkMethods( std::string line, size_t lineNumber ) {
             methNumber++;
             if (( tmp != "GET" && tmp != "POST" && tmp != "DELETE" ) || methNumber > 3) {
 
-                throw std::invalid_argument( RED "Error:\nconfig file: 'methods directive' line: " + to_string( lineNumber ) + " check Methods" RESET );
+                throw std::invalid_argument( RED "Error:\nconfig file: 'methods directive' line: " + to_string( lineNumber ) + RESET );
             }
             line = line.substr(i+1);
             i = 0;
@@ -262,7 +265,7 @@ void getConfigFile::checkListen( std::string line, size_t lineNumber ) {
 
     std::string value = getValue( line );
     if ( value.empty() ) {
-        throw std::invalid_argument( RED "Error:\nconfig file: no value: 'listen directive' line: " + to_string( lineNumber ) + " check listen" RESET);
+        throw std::invalid_argument( RED "Error:\nconfig file: no value: 'listen directive' line: " + to_string( lineNumber ) + RESET );
     }
     else {
         std::istringstream iss( value );
@@ -272,7 +275,7 @@ void getConfigFile::checkListen( std::string line, size_t lineNumber ) {
                 return;
         }
         else {
-            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'listen directive' line: " + to_string( lineNumber ) + " check listen" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'listen directive' line: " + to_string( lineNumber ) + RESET );
         }
     }
 }
@@ -284,7 +287,7 @@ void getConfigFile::checkHost( std::string line, size_t lineNumber ) {
     if ( std::count( value.begin(), value.end(), '.' ) != 3
         || value.find_first_of(" \t\n\r") != std::string::npos
         || value.find_first_not_of("0123456789.") != std::string::npos ) {
-            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'host directive' line: " + to_string( lineNumber ) + " check host1" RESET);
+            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'host directive' line: " + to_string( lineNumber ) + RESET );
     }
     for ( int i = 0; i < 4; i++ ) {
 
@@ -297,6 +300,8 @@ void getConfigFile::checkHost( std::string line, size_t lineNumber ) {
                 value = value.substr( value.find('.') +1 );
             }
         }
-        else { throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'host directive' line: " + to_string( lineNumber ) + " check host3" RESET); }
+        else {
+            throw std::invalid_argument( RED "Error:\nconfig file: wrong value: 'host directive' line: " + to_string( lineNumber ) + RESET );
+        }
     }
 }
