@@ -51,9 +51,6 @@ void	CGI::executeCGI()
 		for (size_t i = 0; i < tmp.size(); i++)
 			env.push_back(const_cast<char*>(tmp[i].c_str()));
 		env.push_back(NULL);
-		//for ( size_t i = 0; env[i]; i++ ) {
-		//	std::cerr << env[i] << std::endl;
-		//}
 		execve(cmd[0], cmd, env.data());
 		perror("execve");
 	}

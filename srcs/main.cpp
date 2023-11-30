@@ -1,7 +1,6 @@
 #include "../includes/HandleConfigFile.hpp"
 #include "../includes/Server.hpp"
 
-
 static std::string find_php_cgi( char** envp ) {
 
 	std::string paths, line;
@@ -41,33 +40,28 @@ int main (int argc, char **argv, char **envp)
 		std::cerr << "Error: too many arguments" << std::endl;
 		return (1);
 	}
-
 	std::string configFile;
-	if (argc == 1)
-		configFile = "file_to_default_conf";
-	else
+
+	if (argc == 1 && access("default_config.conf", F_OK | R_OK) == 0)
+		configFile = "config.conf";
+	else if (argc == 2)
 		configFile = argv[1];
-	//Server *server;
+	else
+	{
+		std::cerr << "Error: no default config file found" << std::endl;
+		return (1);
+	}
+
+
 	try
 	{
 		Server server(configFile, find_php_cgi( envp ));
 	}
-	// catch(const std::invalid_argument& e)
-	// {
-	// 	std::cerr << e.what() << '\n';
-	// 	//system("lsof -c webserv");
-	// 	return (1);
-	// }
+
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
 		return (1);
 	}
-	//delete server;
-	//system("leaks webserv");
-	//system("lsof -c webserv");
 	return (0);
 }
-
-
-// question sur le body size

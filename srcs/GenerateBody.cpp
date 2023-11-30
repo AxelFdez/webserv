@@ -23,18 +23,20 @@ void GenerateBody::handleRequest()
 		return;
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
+	// if (_path.size() > 1 && _path[0] == '/')
+	// 	_path.erase(0, 1);
 	if (!checkAuthorizedMethods())
 	{
 		return;
 	}
-
-	if (!checkRedirection())
-	{
-		return;
-	}
+	//std::cout << "path = " << _path << std::endl;
+	// if (!checkRedirection())
+	// {
+	// 	return;
+	// }
 
 	defineRoot();
-	//std::cout << "_root = "<< _root << std::endl;
+	std::cout << "_root = "<< _root << std::endl;
 	if (!isPathAccess())
 	{
 		return;
@@ -90,14 +92,44 @@ void cutDbSlash( std::string & str ) {
 
 void GenerateBody::defineRoot()
 {
-	std::string ressource_path = _config.getLocationValues(_serverNo, _path, "root")[0];
-	std::string pathTmp2(_path);
-
+	std::string ressource_path = _config.getServerValues(_serverNo, "root");
 	if (ressource_path[ressource_path.size() - 1] != '/')
 		ressource_path += "/";
-	std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
-	cutDbSlash(pathTmp);
-	ressource_path = pathTmp;
+	std::cout << "ressource_path = " << ressource_path << std::endl;
+	if (ressource_path.empty())
+	{
+		perror("Error: root empty");
+		_errorCode = 404;
+		_responseBody = generateErrorPage(_errorCode);
+		_responseHeader = "Content-Length: " + to_string(_responseBody.size());
+		return;
+	}
+	std::cout << "path = " << _path << std::endl;
+	if (!_config.getLocationValues(_serverNo, _path, "redirect").empty())
+	{
+		puts("redirect");
+		_errorCode = 301;
+		_responseBody = generateErrorPage(_errorCode);
+		if (_config.getLocationValues(_serverNo, _path, "redirect")[0][0] == '/')
+			_responseHeader = "Location: " + ressource_path + _config.getLocationValues(_serverNo, _path, "redirect")[0].erase(0, 1) + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
+		else
+			_responseHeader = "Location: " + ressource_path + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
+		return;
+	}
+	puts("aa");
+	std::vector<std::string> location_root = _config.getLocationValues(_serverNo, _path, "root");
+	puts("bb");
+	if (!location_root.empty())
+	{
+		ressource_path = location_root[0];
+	}
+	//std::string pathTmp2(_path);
+	puts("cc");
+
+	//std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
+	puts("dd");
+	//cutDbSlash(pathTmp);
+	ressource_path = ressource_path + _path;
 	if (isFile(ressource_path.c_str()))
 	{
 		_root = ressource_path;
@@ -138,17 +170,17 @@ bool GenerateBody::checkDirectoryListing()
 	//std::cout << "_location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;
 	if (isDir(_root.c_str()))
 	{
-		if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "off")
+		if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
 		{
-			_errorCode = 404;
+			puts("directory_listing empty");
+			_errorCode = 403;
 			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
 		}
-		else if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
+		else if (_config.getLocationValues(_serverNo, _path, "directory_listing")[0] == "off")
 		{
-			puts("directory_listing empty");
-			_errorCode = 403;
+			_errorCode = 404;
 			_responseBody = generateErrorPage(_errorCode);
 			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 			return true;
@@ -491,6 +523,13 @@ bool GenerateBody::isDir(const char* path) {
 
 bool GenerateBody::checkAuthorizedMethods()
 {
+	if (_config.getLocationValues(_serverNo, _path, "methods").empty())
+	{
+		_errorCode = 405;
+		_responseBody = generateErrorPage(405);
+		_responseHeader = "Content-Length: " + to_string(_responseBody.size());
+		return false;
+	}
 	for(size_t i = 0; i < _config.getLocationValues(_serverNo, _path, "methods").size(); i++)
 	{
 		if (_method == _config.getLocationValues(_serverNo, _path, "methods")[i])
