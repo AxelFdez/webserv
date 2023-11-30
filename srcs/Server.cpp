@@ -59,6 +59,7 @@ void Server::createSocket()
 void Server::linkAddPort()
 {
 	std::vector<std::vector<int> > ports = _config.getPorts();
+	size_t successBind = 0;
 	for ( size_t i = 0; i < ports.size(); i++ ) {
 
 		for ( size_t j = 0; j < ports[i].size(); j++ ) {
@@ -73,7 +74,13 @@ void Server::linkAddPort()
 				continue;
 			}
 			std::cout << "Bind success." << std::endl;
+			successBind++;
 		}
+	}
+	if (successBind == 0)
+	{
+		std::cout << "error : no port found" << std::endl;
+		throw std::exception();
 	}
 }
 

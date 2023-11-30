@@ -131,7 +131,6 @@ bool ClientRequest::doubleLineEndingFound(std::vector<char> request)
 	if (request.size() >= 4)
 	{
 		std::string tmp = vectorCharToString( request );
-		// if (tmp.find("\r\n\r\n", tmp.size() - 5, 4) != std::string::npos)
 		if (tmp.find("\r\n\r\n") != std::string::npos)
 			return true;
 	}
@@ -207,7 +206,6 @@ void ClientRequest::sendResponse()
 		if ((((_pollSockets[i].revents & POLLOUT) && !(_pollSockets[i].revents & POLLIN) && !_clients[_pollSockets[i].fd].getRequest().empty()) && _clients[_pollSockets[i].fd].getReady()) \
 			|| ((_pollSockets[i].revents & POLLOUT) && _clients[_pollSockets[i].fd].getBodySize() > _config.getBodySizeMax(_clients[_pollSockets[i].fd].getBelongOfServer())))
 		{
-			//std::cout <<  std::boolalpha << _clients[_pollSockets[i].fd].getReady() << std::endl;
 			if (_clients[_pollSockets[i].fd].getResponse().empty())
 			{
 				_clients[_pollSockets[i].fd].setBytesSent(0);
@@ -217,7 +215,6 @@ void ClientRequest::sendResponse()
 				response.access_logs(_clients[_pollSockets[i].fd].getClientIP());
 			}
 			std::string partialResponse = _clients[_pollSockets[i].fd].getResponse().substr(_clients[_pollSockets[i].fd].getBytesSent(), 1024);
-			//std::cout << "partialResponse = " << partialResponse << std::endl;
 			ssize_t bytes = send(_pollSockets[i].fd, partialResponse.c_str(), partialResponse.size(), 0);
 			if (bytes < 0)
 			{

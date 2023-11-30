@@ -7,7 +7,6 @@ CGI::CGI(std::string path, std::string uri, std::string method, std::map<std::st
 	_method = method;
 	_request = request;
 	_requestBody = request["Body"];
-	//std:: cerr << "requestBody: " << _requestBody << std::endl;
 	_lineEnding = lineEnding;
 	_extension = extension;
 	_cgi_path = config.getCGI_PATH();

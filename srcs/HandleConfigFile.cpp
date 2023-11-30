@@ -6,7 +6,7 @@
 /*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 14:21:31 by chris             #+#    #+#             */
-/*   Updated: 2023/11/30 08:51:08 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/30 11:22:38 by chris            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,19 @@ void HandleConfigFile::getLocations() {
 
                     std::string key = getKey(*it);
                     std::vector<std::string> values = splitStringToVector( getValue(*it) );
-
-                    if ( key == "location" ) {
+                    if (key == "redirect")
+                    {
+                        if (values[0][0] != '/')
+                            values[0] = "/" + values[0];
+                        if (values[0].size() > 1 && values[0].at(values[0].size() - 1) == '/')
+                            values[0].resize(values[0].size() - 1);
+                    }
+                    if ( key == "location") {
 
                         locationsTmp.push_back( values[0] );
+                        if ( values[0][0] != '/' ) {
+                            values[0] = "/" + values[0];
+                        }
                         if ( values[0].size() > 1 && values[0].at(values[0].size() -1) == '/' ) {
                             values[0].resize(values[0].size() -1);
                         }
@@ -90,11 +99,10 @@ void HandleConfigFile::get_ports_bodySize() {
 
     //std::vector<std::vector<std::string> >::iterator it = config.begin();
     for ( size_t i = 0; i != config.size(); i++ ) {
-
+        _body_size_max.push_back( 0 );
         _ports.push_back( std::vector<int>() );
         std::vector<std::string>::iterator it = config[i].begin();
         for ( ; it != config[i].end(); it++ ) {
-
             if ( (*it).find("listen ", 0, 6 ) == 0 ) {
 
                 std::string value = getValue( *it );
@@ -110,7 +118,7 @@ void HandleConfigFile::get_ports_bodySize() {
                 std::istringstream iss( value );
                 int number;
                 if (iss >> number ) {
-                    _body_size_max.push_back( number +1 );
+                    _body_size_max[i] = number + 1 ;
                 }
             }
         }

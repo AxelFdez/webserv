@@ -43,7 +43,7 @@ int main (int argc, char **argv, char **envp)
 	std::string configFile;
 
 	if (argc == 1 && access("default_config.conf", F_OK | R_OK) == 0)
-		configFile = "config.conf";
+		configFile = "default_config.conf";
 	else if (argc == 2)
 		configFile = argv[1];
 	else
@@ -51,8 +51,6 @@ int main (int argc, char **argv, char **envp)
 		std::cerr << "Error: no default config file found" << std::endl;
 		return (1);
 	}
-
-
 	try
 	{
 		Server server(configFile, find_php_cgi( envp ));
