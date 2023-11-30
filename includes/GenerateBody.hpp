@@ -19,7 +19,7 @@ class GenerateBody
 
 		GenerateBody( GenerateBody const& src );
 		GenerateBody & operator=( GenerateBody const& rhs );
-		
+
 		std::vector<char>	_binaryRequest;
 		std::map<std::string, std::string> _request;
 		std::string		_lineEnding;
@@ -40,8 +40,8 @@ class GenerateBody
 		void		handleRequest();
 		bool		requestValid();
 		bool 		checkAuthorizedMethods();
-		bool		checkRedirection();
-		void		defineRoot();
+		bool		checkRedirection(std::string ressource_path);
+		bool		defineRoot();
 		bool		isPathAccess();
 		bool		checkDirectoryListing();
 		bool		deleteMethod();

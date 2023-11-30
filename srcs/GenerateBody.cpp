@@ -23,20 +23,15 @@ void GenerateBody::handleRequest()
 		return;
 	}
 	_path = _uri.substr(0, _uri.find('?', 0));
-	// if (_path.size() > 1 && _path[0] == '/')
-	// 	_path.erase(0, 1);
 	if (!checkAuthorizedMethods())
 	{
 		return;
 	}
-	//std::cout << "path = " << _path << std::endl;
-	// if (!checkRedirection())
-	// {
-	// 	return;
-	// }
-
-	defineRoot();
-	std::cout << "_root = "<< _root << std::endl;
+	if (!defineRoot())
+	{
+		return;
+	}
+	//std::cout << "_root = "<< _root << std::endl;
 	if (!isPathAccess())
 	{
 		return;
@@ -64,14 +59,18 @@ void GenerateBody::handleRequest()
 	_errorCode = 200;
 }
 
-bool GenerateBody::checkRedirection()
+bool GenerateBody::checkRedirection(std::string ressource_path)
 {
+	(void)ressource_path;
 	if (!_config.getLocationValues(_serverNo, _path, "redirect").empty() \
-		&& _path != "/" + _config.getLocationValues(_serverNo, _path, "redirect")[0])
+		&& _path != _config.getLocationValues(_serverNo, _path, "redirect")[0])
 	{
 		_errorCode = 301;
 		_responseBody = generateErrorPage(_errorCode);
-		_responseHeader = "Location: " + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
+		if (_config.getLocationValues(_serverNo, _path, "redirect")[0][0] == '/')
+			_responseHeader = "Location: "  + _config.getLocationValues(_serverNo, _path, "redirect")[0].erase(0, 1) + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
+		else
+			_responseHeader = "Location: "  + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
 		return false;
 	}
 	return true;
@@ -90,46 +89,30 @@ void cutDbSlash( std::string & str ) {
     }
 }
 
-void GenerateBody::defineRoot()
+bool GenerateBody::defineRoot()
 {
 	std::string ressource_path = _config.getServerValues(_serverNo, "root");
 	if (ressource_path[ressource_path.size() - 1] != '/')
 		ressource_path += "/";
-	std::cout << "ressource_path = " << ressource_path << std::endl;
 	if (ressource_path.empty())
 	{
 		perror("Error: root empty");
 		_errorCode = 404;
 		_responseBody = generateErrorPage(_errorCode);
 		_responseHeader = "Content-Length: " + to_string(_responseBody.size());
-		return;
+		return false;
 	}
-	std::cout << "path = " << _path << std::endl;
-	if (!_config.getLocationValues(_serverNo, _path, "redirect").empty())
-	{
-		puts("redirect");
-		_errorCode = 301;
-		_responseBody = generateErrorPage(_errorCode);
-		if (_config.getLocationValues(_serverNo, _path, "redirect")[0][0] == '/')
-			_responseHeader = "Location: " + ressource_path + _config.getLocationValues(_serverNo, _path, "redirect")[0].erase(0, 1) + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
-		else
-			_responseHeader = "Location: " + ressource_path + _config.getLocationValues(_serverNo, _path, "redirect")[0] + "\nContent-Length: " + to_string(static_cast<int>(_responseBody.size()));
-		return;
-	}
-	puts("aa");
 	std::vector<std::string> location_root = _config.getLocationValues(_serverNo, _path, "root");
-	puts("bb");
 	if (!location_root.empty())
 	{
 		ressource_path = location_root[0];
 	}
-	//std::string pathTmp2(_path);
-	puts("cc");
-
-	//std::string pathTmp = ressource_path + pathTmp2.erase(pathTmp2.find(_config.getLocationValues(_serverNo, _path, "location")[0]), _config.getLocationValues(_serverNo, _path, "location")[0].size());
-	puts("dd");
-	//cutDbSlash(pathTmp);
+	if (!checkRedirection(ressource_path))
+	{
+		return false;
+	}
 	ressource_path = ressource_path + _path;
+	cutDbSlash(ressource_path);
 	if (isFile(ressource_path.c_str()))
 	{
 		_root = ressource_path;
@@ -162,12 +145,12 @@ void GenerateBody::defineRoot()
 	{
 		_root = ressource_path;
 	}
+	return true;
 }
 
 bool GenerateBody::checkDirectoryListing()
 {
-	//std::cout << "_path = " << _path << std::endl;
-	//std::cout << "_location = " << _config.getLocationValues(_serverNo, _path, "location")[0] << std::endl;
+
 	if (isDir(_root.c_str()))
 	{
 		if (_config.getLocationValues(_serverNo, _path, "directory_listing").empty())
@@ -220,7 +203,15 @@ bool GenerateBody::deleteMethod()
 {
 	if (_method == "DELETE")
 	{
-		if(isDir(_root.c_str()) && remove( _root.c_str() ) != 0)
+		if (isDir(_root.c_str()))
+		{
+			perror( "Error deleting directory" );
+			_errorCode = 403;
+			_responseBody = generateErrorPage(_errorCode);
+			_responseHeader = "Content-Length: " + to_string(_responseBody.size());
+			return true;
+		}
+		else if (remove( _root.c_str() ) != 0)
 		{
 			perror( "Error deleting file" );
 			_errorCode = 403;
@@ -264,7 +255,14 @@ bool GenerateBody::uploadAsked()
 {
 	if (_request["Content-Type"].find("multipart/form-data") != std::string::npos)
 	{
-		if (_method == "POST" && _config.getLocationValues(_serverNo, _path, "download")[0] == "on")
+		bool download = false;
+		if (!_config.getLocationValues(_serverNo, _path, "download").empty() &&
+			!_config.getLocationValues(_serverNo, _path, "download_folder").empty())
+		{
+			if (_config.getLocationValues(_serverNo, _path, "download")[0] == "on")
+				download = true;
+		}
+		if (_method == "POST" && download)
 		{
 			if (!_request["Body"][0])
 			{
@@ -331,7 +329,8 @@ bool GenerateBody::uploadAsked()
 				}
 				else
 				{
-					_errorCode = 500;
+					perror("Error: file not found or not writable");
+					_errorCode = 403;
 					_responseBody = generateErrorPage(_errorCode);
 					_responseHeader = "Content-Length: " + to_string(_responseBody.size());
 					return true;
@@ -339,6 +338,7 @@ bool GenerateBody::uploadAsked()
 			}
 			else
 			{
+				perror("Error: download folder not found or not writable");
 				_errorCode = 403;
 				_responseBody = generateErrorPage(_errorCode);
 				_responseHeader = "Content-Length: " + to_string(_responseBody.size());
@@ -369,10 +369,11 @@ bool	GenerateBody::requestValid()
 		_responseBody = generateErrorPage(400);
 		return false;
 	}
-	else if (_requestHost != _config.getServerValues(_serverNo, "host") \
+	else if ((_requestHost != _config.getServerValues(_serverNo, "host") \
 		&& _requestHost != _config.getServerValues(_serverNo, "server_name"))
+		|| _config.getLocationValues(_serverNo, _path, "location").empty())
 	{
-		std::cerr << "host missing or invalid" << std::endl;
+		std::cerr << "host missing or invalid or no root" << std::endl;
 		_errorCode = 404;
 		_responseBody = generateErrorPage(404);
 		return false;
