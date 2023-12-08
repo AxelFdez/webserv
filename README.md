@@ -57,13 +57,13 @@ make
 Pour exécuter le serveur Webserv, utilisez la commande suivante :
 
 ```shell
-./webserv
+./webserv [fichier_de_configuration]
 ```
 
 ou sans argument pour prendre le fichier de configuration par défaut :
 
 ```shell
-./webserv [fichier_de_configuration]
+./webserv
 ```
 
 ## Auteur
