@@ -50,6 +50,7 @@ Utilisez le Makefile fourni pour compiler le projet :
 
 ```shell
 make
+```
 
 ## Utilisation
 
@@ -57,11 +58,13 @@ Pour exécuter le serveur Webserv, utilisez la commande suivante :
 
 ```shell
 ./webserv
+```
 
 ou sans argument pour prendre le fichier de configuration par défaut :
 
 ```shell
 ./webserv [fichier_de_configuration]
+```
 
 ## Auteur
 
