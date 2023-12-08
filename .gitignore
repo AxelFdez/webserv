@@ -1,8 +1,4 @@
 .vscode
-*.o
-includes/*.gch
-webserv
-YoupiBanane
-tester
-config.txt
-.DS_STORE
+**/.o
+**/*.gch
+../.DS_STORE

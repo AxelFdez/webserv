@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   getConfigFile.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: chris <chris@student.42.fr>                +#+  +:+       +#+        */
+/*   By: axfernan <axfernan@student.42nice.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/03 15:10:41 by chris             #+#    #+#             */
-/*   Updated: 2023/11/30 11:18:44 by chris            ###   ########.fr       */
+/*   Updated: 2023/11/30 11:31:45 by axfernan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void getConfigFile::checkServerScope( std::string line, size_t lineNumber ) {
     if ( ( _vectorIndice == -1 && line != "server[")
         || (line == "]" && _serverToken == false)
         || (line == "server[" && _serverToken == true )) {
-        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + std::to_string( lineNumber ) + RESET );
+        throw std::invalid_argument( RED "Error:\nconfig file: syntax error: '" + line + "' line: " + to_string( lineNumber ) + RESET );
     }
     if ( line == "server[" ) {
         _serverToken = true;

@@ -149,9 +149,6 @@ void ClientRequest::readRequest()
 			ssize_t bytes = recv(_pollSockets[i].fd, request, bufferSize - 1, 0);
 			if (bytes <= 0)
 			{
-				std::cerr << "bytes = " << bytes << std::endl;
-				if (bytes < 0)
-					perror("Error data reception");
 				close(_pollSockets[i].fd);
 				_clients.erase(_pollSockets[i].fd);
 				_pollSockets.erase(_pollSockets.begin() + i);

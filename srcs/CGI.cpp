@@ -41,7 +41,7 @@ void	CGI::executeCGI()
 		char *cmd[2];
 		if (_extension == ".php")
 			cmd[0] = const_cast<char *>(_cgi_path.c_str());
-		else if (_extension == ".py" || _extension == ".sh")
+		else if (_extension == ".py")
 			cmd[0] = const_cast<char *>(_path.c_str());
 		cmd[1] = NULL;
 		std::vector<char*> env;
@@ -59,11 +59,17 @@ void	CGI::executeCGI()
 	close(stdinPipe[0]);
 	close(stdoutPipe[1]);
 	int ret = 0;
-	// sleep(2);
-	// kill(child, SIGTERM);
 	waitpid(child, &ret, 0);
-	if ( ret != 0 && !fillResponseFrom(stdoutPipe[0]) ) 
+	if ( ret != 0 )
 	{
+		perror("execve error");
+		_errorCode = 500;
+		close(stdoutPipe[0]);
+		return;
+	}
+	if (!fillResponseFrom(stdoutPipe[0]))
+	{
+		perror("read pipe error");
 		_errorCode = 500;
 		close(stdoutPipe[0]);
 		return;
@@ -77,6 +83,7 @@ void	CGI::executeCGI()
 	}
 	else
 	{
+		perror("cgi request malformed");
 		_errorCode = 500;
 		return;
 	}
@@ -95,7 +102,9 @@ bool	CGI::fillResponseFrom(int stdoutPipe)
    	std::vector<char> buffer(bufferSize);
 	ssize_t bytesRead;
     while ((bytesRead = read(stdoutPipe, buffer.data(), bufferSize)) > 0)
+	{
         _responseBody.append(buffer.begin(), buffer.begin() + bytesRead);
+	}
     if (bytesRead < 0)
 	{
         perror("read pipe error");
